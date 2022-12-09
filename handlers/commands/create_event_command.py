@@ -7,7 +7,15 @@ import utils
 from loader import bot
 
 
-async def create_event_command(message: aiogram.types.Message):
+async def create_event_command(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
+    with utils.database.database as db:
+        channels = db.get_channels()
+        groups = db.get_groups()
+    channels_text = await utils.misc.create_channels_text(channels=channels, groups=groups)
+    channels_ids_dict = await utils.misc.get_channels_indexes(channels=channels, groups=groups)
+    async with state.proxy() as data:
+        data['channels_text'] = channels_text
+        data['channels_ids_dict'] = channels_ids_dict
     await message.answer(text='ℹВы находитесь в режиме создания события. '
                               'Для того что бы выйти используйте команду /cancel.')
     await message.answer(text='❕*Отправьте название события.*',
@@ -44,20 +52,15 @@ async def without_picture(callback: aiogram.types.CallbackQuery, state: aiogram.
 
 async def get_event_description(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
     event_description = message.text
-    with utils.database.database as db:
-        channels = db.get_channels()
-        groups = db.get_groups()
-    channels_text = await utils.misc.create_channels_text(channels=channels, groups=groups)
-    channels_ids_dict = await utils.misc.get_channels_indexes(channels=channels, groups=groups)
     async with state.proxy() as data:
         data['event_description'] = event_description
-        data['channels_ids_dict'] = channels_ids_dict
+        channels_text = data['channels_text']
     await message.answer(text=f'❕*Выберите номер канала, либо укажите через пробел номера каналов, '
                               f'в которые необходимо отправить событие.*\n{channels_text}', parse_mode='Markdown')
     await states.create_event_states.CreateEventStates.next()
 
 
-async def select_channel(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
+async def get_channels_to_send(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
     async with state.proxy() as data:
         channels_ids_dict = data['channels_ids_dict']
     if await filters.is_text_consists_of_digits.is_text_consists_of_digits(
@@ -112,7 +115,7 @@ def register_create_event_command_handler(dp: aiogram.Dispatcher):
                                        state=states.create_event_states.CreateEventStates.get_event_picture)
     dp.register_message_handler(callback=get_event_description, content_types=['text'],
                                 state=states.create_event_states.CreateEventStates.get_event_description)
-    dp.register_message_handler(callback=select_channel, content_types=['text'],
+    dp.register_message_handler(callback=get_channels_to_send, content_types=['text'],
                                 state=states.create_event_states.CreateEventStates.select_channel)
     dp.register_callback_query_handler(callback=send_event, text='send_event',
                                        state=states.create_event_states.CreateEventStates.is_all_correct)
