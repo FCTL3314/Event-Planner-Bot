@@ -10,6 +10,7 @@ from data.config import LOGGING_LEVEL, LOGGING_FILE_NAME, LOGGING_FILE_MODE, LOG
 logging.basicConfig(level=LOGGING_LEVEL, filename=f"{LOGGING_FILE_NAME}.log", filemode=LOGGING_FILE_MODE,
                     format=LOGGING_FORMAT)
 
+handlers.messages.bot_added_to_channel.register_bot_added_to_channel_handler(dp=dp)
 handlers.commands.cancel_command.register_cancel_command_handler(dp=dp)
 handlers.commands.create_event_command.register_create_event_command_handler(dp=dp)
 
