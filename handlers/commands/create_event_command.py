@@ -65,7 +65,7 @@ async def get_channels_to_send(message: aiogram.types.Message, state: aiogram.di
         channels_ids_dict = data['channels_ids_dict']
     if await filters.is_text_consists_of_digits.is_text_consists_of_digits(
             text=message.text) and await filters.is_channel_numbers_correct.is_channel_numbers_correct(
-            text=message.text, channels_ids_dict=channels_ids_dict):
+        text=message.text, channels_ids_dict=channels_ids_dict):
         channels_indexes = message.text.split(' ')
         await message.answer(text='❕*Проверьте правильность оформления:*', parse_mode='Markdown')
         async with state.proxy() as data:
@@ -92,11 +92,13 @@ async def send_event(callback: aiogram.types.CallbackQuery, state: aiogram.dispa
         if event_picture_id:
             await bot.send_photo(chat_id=channels_ids_dict[number], photo=event_picture_id,
                                  caption=f"*{event_name}*\n{event_description}",
-                                 reply_markup=keyboards.inline.plus_and_minus_counter_keyboard.plus_and_minus_counter_keyboard(),
+                                 reply_markup=keyboards.inline.plus_and_minus_counter_keyboard.
+                                 plus_and_minus_counter_keyboard(),
                                  parse_mode='Markdown')
         else:
             await bot.send_message(chat_id=channels_ids_dict[number], text=f"*{event_name}*\n{event_description}",
-                                   reply_markup=keyboards.inline.plus_and_minus_counter_keyboard.plus_and_minus_counter_keyboard(),
+                                   reply_markup=keyboards.inline.plus_and_minus_counter_keyboard.
+                                   plus_and_minus_counter_keyboard(),
                                    parse_mode='Markdown')
     await bot.send_message(chat_id=callback.from_user.id, text='✅Событие успешно отправлено.')
     await state.finish()
