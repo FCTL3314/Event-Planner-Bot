@@ -49,3 +49,11 @@ class SQLiteDatabase:
 
     def remove_group(self, group_id):
         self.__cur.execute(f"""DELETE FROM groups WHERE group_id = {group_id}""")
+
+    def get_channels(self):
+        self.__cur.execute(f"""SELECT * FROM channels""")
+        return self.__cur.fetchall()
+
+    def get_groups(self):
+        self.__cur.execute(f"""SELECT * FROM groups""")
+        return self.__cur.fetchall()
