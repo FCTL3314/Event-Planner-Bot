@@ -73,14 +73,9 @@ async def get_channels_to_send(message: aiogram.types.Message, state: aiogram.di
             event_picture_id = data['event_picture_id']
             event_description = data['event_description']
             data['channels_indexes'] = channels_indexes
-        if event_picture_id:
-            await message.answer_photo(photo=event_picture_id, caption=f"*{event_name}*\n{event_description}",
-                                       reply_markup=keyboards.inline.send_event.send_event_keyboard(),
-                                       parse_mode='Markdown')
-        else:
-            await message.answer(text=f'*{event_name}*\n{event_description}',
-                                 reply_markup=keyboards.inline.send_event.send_event_keyboard(),
-                                 parse_mode='Markdown')
+        await utils.misc.send_message.send_preview_of_event_post(message=message, event_name=event_name,
+                                                                 event_picture_id=event_picture_id,
+                                                                 event_description=event_description)
         await states.create_event_states.CreateEventStates.next()
     else:
         await message.answer(text='❗*Проверьте правильность сообщения.*', parse_mode='Markdown')
