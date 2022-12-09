@@ -28,6 +28,24 @@ class SQLiteDatabase:
         self._connected = True
 
     def create_tables(self):
-        self.__cur.execute("""CREATE TABLE IF NOT EXISTS channels (
+        self.__cur.execute("""
+        CREATE TABLE IF NOT EXISTS channels (
         channel_id PRIMARY KEY,
         channel_name text)""")
+        self.__cur.execute("""CREATE TABLE IF NOT EXISTS groups (
+        group_id PRIMARY KEY,
+        group_name text)""")
+
+    def add_channel(self, channel_id, channel_name):
+        self.__cur.execute(f"""
+        INSERT INTO channels (channel_id, channel_name) VALUES ({channel_id}, '{channel_name}')""")
+
+    def remove_channel(self, channel_id):
+        self.__cur.execute(f"""DELETE FROM channels WHERE channel_id = {channel_id}""")
+
+    def add_group(self, group_id, group_name):
+        self.__cur.execute(f"""
+                INSERT INTO groups (group_id, group_name) VALUES ({group_id}, '{group_name}')""")
+
+    def remove_group(self, group_id):
+        self.__cur.execute(f"""DELETE FROM groups WHERE group_id = {group_id}""")
