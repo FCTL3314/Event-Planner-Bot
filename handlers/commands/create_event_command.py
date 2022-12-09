@@ -92,11 +92,13 @@ async def send_event(callback: aiogram.types.CallbackQuery, state: aiogram.dispa
         if event_picture_id:
             await bot.send_photo(chat_id=channels_ids_dict[number], photo=event_picture_id,
                                  caption=f"*{event_name}*\n{event_description}",
+                                 reply_markup=keyboards.inline.plus_and_minus_counter_keyboard.plus_and_minus_counter_keyboard(),
                                  parse_mode='Markdown')
         else:
             await bot.send_message(chat_id=channels_ids_dict[number], text=f"*{event_name}*\n{event_description}",
+                                   reply_markup=keyboards.inline.plus_and_minus_counter_keyboard.plus_and_minus_counter_keyboard(),
                                    parse_mode='Markdown')
-    await bot.send_message(chat_id=callback.from_user.id, text='✅Событие отправлено.')
+    await bot.send_message(chat_id=callback.from_user.id, text='✅Событие успешно отправлено.')
     await state.finish()
 
 
