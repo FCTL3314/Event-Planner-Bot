@@ -21,8 +21,7 @@ async def create_event_command(message: aiogram.types.Message, state: aiogram.di
                 data['channels_ids_dict'] = channels_ids_dict
             await message.answer(text='ℹВы находитесь в режиме создания события. '
                                       'Для того что бы выйти используйте команду /cancel.')
-            await message.answer(text='❕*Отправьте название события.*',
-                                 parse_mode='Markdown')
+            await message.answer(text='❕*Отправьте название события.*', parse_mode='Markdown')
             await states.create_event_states.CreateEventStates.get_event_name.set()
         else:
             await message.answer(text='⚠️Для начала добавьте бота в канал.')
@@ -53,8 +52,7 @@ async def get_event_description(message: aiogram.types.Message, state: aiogram.d
         data['event_description'] = event_description
         channels_text = data['channels_text']
     await message.answer(text=f'❕*Отправьте номер канала, либо укажите через пробел номера каналов, '
-                              f'в которые необходимо отправить событие:*\n{channels_text}',
-                         parse_mode='Markdown')
+                              f'в которые необходимо отправить событие:*\n{channels_text}', parse_mode='Markdown')
     await states.create_event_states.CreateEventStates.next()
 
 
@@ -71,9 +69,9 @@ async def get_channels_to_send(message: aiogram.types.Message, state: aiogram.di
             event_picture_id = data['event_picture_id']
             event_description = data['event_description']
             data['channels_indexes'] = channels_indexes
-        await utils.misc.send_message.send_preview_of_event_post(message=message, event_name=event_name,
-                                                                 event_picture_id=event_picture_id,
-                                                                 event_description=event_description)
+        await utils.misc.send_message.send_preview_of_event(message=message, event_name=event_name,
+                                                            event_picture_id=event_picture_id,
+                                                            event_description=event_description)
         await states.create_event_states.CreateEventStates.next()
     else:
         await message.answer(text='⚠️*Введённые вами номера групп не корректны, попробуйте снова.*',
@@ -108,6 +106,6 @@ def register_create_event_command_handlers(dp: aiogram.Dispatcher):
     dp.register_message_handler(callback=get_event_description, content_types=['text'],
                                 state=states.create_event_states.CreateEventStates.get_event_description)
     dp.register_message_handler(callback=get_channels_to_send, content_types=['text'],
-                                state=states.create_event_states.CreateEventStates.select_channel)
+                                state=states.create_event_states.CreateEventStates.get_channels_to_send)
     dp.register_callback_query_handler(callback=send_event, text='send_event',
                                        state=states.create_event_states.CreateEventStates.send_event)
