@@ -1,1 +1,1 @@
-import handlers.messages.bot_added_to_channel
+import handlers.messages.bot_channel_actions
