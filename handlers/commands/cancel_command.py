@@ -7,8 +7,7 @@ from data.config import BOT_ADMIN_IDS
 
 async def cancel_command(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
     if message.from_user.id in BOT_ADMIN_IDS:
-        await message.answer(text='ℹ️*Создание события остановлено.*',
-                             parse_mode='Markdown',
+        await message.answer(text='ℹ️*Создание события / опроса остановлено.*', parse_mode='Markdown',
                              reply_markup=aiogram.types.reply_keyboard.ReplyKeyboardRemove())
         await state.finish()
 
@@ -20,5 +19,10 @@ def register_cancel_command_handlers(dp: aiogram.Dispatcher):
                                 state=[states.create_event_states.CreateEventStates.get_event_name,
                                        states.create_event_states.CreateEventStates.get_event_description,
                                        states.create_event_states.CreateEventStates.get_event_picture,
-                                       states.create_event_states.CreateEventStates.select_channel,
-                                       states.create_event_states.CreateEventStates.send_event])
+                                       states.create_event_states.CreateEventStates.get_channels_to_send,
+                                       states.create_event_states.CreateEventStates.send_event,
+                                       states.create_survey_states.CreateSurveyStates.get_survey_name,
+                                       states.create_survey_states.CreateSurveyStates.get_survey_answers,
+                                       states.create_survey_states.CreateSurveyStates.
+                                get_channels_to_send,
+                                       states.create_survey_states.CreateSurveyStates.send_survey])
