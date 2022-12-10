@@ -6,4 +6,4 @@ class CreateEventStates(StatesGroup):
     get_event_picture = State()
     get_event_description = State()
     select_channel = State()
-    is_all_correct = State()
+    send_event = State()

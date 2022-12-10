@@ -17,4 +17,3 @@ async def get_channels_indexes(channels: List[tuple], groups: List[tuple]):
     for i, group in enumerate(groups, len(channels) + 1):
         channels_indexes[str(i)] = group[0]
     return channels_indexes
-
