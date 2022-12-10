@@ -13,16 +13,19 @@ async def create_event_command(message: aiogram.types.Message, state: aiogram.di
         with utils.database.database as db:
             channels = db.get_channels()
             groups = db.get_groups()
-        channels_text = await utils.misc.create_channels_text(channels=channels, groups=groups)
-        channels_ids_dict = await utils.misc.get_channels_indexes(channels=channels, groups=groups)
-        async with state.proxy() as data:
-            data['channels_text'] = channels_text
-            data['channels_ids_dict'] = channels_ids_dict
-        await message.answer(text='ℹВы находитесь в режиме создания события. '
-                                  'Для того что бы выйти используйте команду /cancel.')
-        await message.answer(text='❕*Отправьте название события.*',
-                             parse_mode='Markdown')
-        await states.create_event_states.CreateEventStates.get_event_name.set()
+        if channels or groups:
+            channels_text = await utils.misc.create_channels_text(channels=channels, groups=groups)
+            channels_ids_dict = await utils.misc.get_channels_indexes(channels=channels, groups=groups)
+            async with state.proxy() as data:
+                data['channels_text'] = channels_text
+                data['channels_ids_dict'] = channels_ids_dict
+            await message.answer(text='ℹВы находитесь в режиме создания события. '
+                                      'Для того что бы выйти используйте команду /cancel.')
+            await message.answer(text='❕*Отправьте название события.*',
+                                 parse_mode='Markdown')
+            await states.create_event_states.CreateEventStates.get_event_name.set()
+        else:
+            await message.answer(text='⚠️Для начала добавьте бота в канал.')
 
 
 async def get_event_name(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
@@ -81,7 +84,7 @@ async def get_channels_to_send(message: aiogram.types.Message, state: aiogram.di
                                                                  event_description=event_description)
         await states.create_event_states.CreateEventStates.next()
     else:
-        await message.answer(text='❗*Введённые вами номера групп не корректны.*', parse_mode='Markdown')
+        await message.answer(text='⚠️*Введённые вами номера групп не корректны.*', parse_mode='Markdown')
 
 
 async def send_event(callback: aiogram.types.CallbackQuery, state: aiogram.dispatcher.FSMContext):
