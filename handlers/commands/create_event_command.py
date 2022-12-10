@@ -4,23 +4,25 @@ import keyboards
 import states
 import utils
 
+from data.config import BOT_ADMIN_IDS
 from loader import bot
 
 
 async def create_event_command(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
-    with utils.database.database as db:
-        channels = db.get_channels()
-        groups = db.get_groups()
-    channels_text = await utils.misc.create_channels_text(channels=channels, groups=groups)
-    channels_ids_dict = await utils.misc.get_channels_indexes(channels=channels, groups=groups)
-    async with state.proxy() as data:
-        data['channels_text'] = channels_text
-        data['channels_ids_dict'] = channels_ids_dict
-    await message.answer(text='ℹВы находитесь в режиме создания события. '
-                              'Для того что бы выйти используйте команду /cancel.')
-    await message.answer(text='❕*Отправьте название события.*',
-                         parse_mode='Markdown')
-    await states.create_event_states.CreateEventStates.get_event_name.set()
+    if message.from_user.id in BOT_ADMIN_IDS:
+        with utils.database.database as db:
+            channels = db.get_channels()
+            groups = db.get_groups()
+        channels_text = await utils.misc.create_channels_text(channels=channels, groups=groups)
+        channels_ids_dict = await utils.misc.get_channels_indexes(channels=channels, groups=groups)
+        async with state.proxy() as data:
+            data['channels_text'] = channels_text
+            data['channels_ids_dict'] = channels_ids_dict
+        await message.answer(text='ℹВы находитесь в режиме создания события. '
+                                  'Для того что бы выйти используйте команду /cancel.')
+        await message.answer(text='❕*Отправьте название события.*',
+                             parse_mode='Markdown')
+        await states.create_event_states.CreateEventStates.get_event_name.set()
 
 
 async def get_event_name(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
@@ -55,8 +57,9 @@ async def get_event_description(message: aiogram.types.Message, state: aiogram.d
     async with state.proxy() as data:
         data['event_description'] = event_description
         channels_text = data['channels_text']
-    await message.answer(text=f'❕*Выберите номер канала, либо укажите через пробел номера каналов, '
-                              f'в которые необходимо отправить событие.*\n{channels_text}', parse_mode='Markdown')
+    await message.answer(text=f'❕*Отправьте номер канала, либо укажите через пробел номера каналов, '
+                              f'в которые необходимо отправить событие:*\n{channels_text}',
+                         parse_mode='Markdown')
     await states.create_event_states.CreateEventStates.next()
 
 
@@ -78,7 +81,7 @@ async def get_channels_to_send(message: aiogram.types.Message, state: aiogram.di
                                                                  event_description=event_description)
         await states.create_event_states.CreateEventStates.next()
     else:
-        await message.answer(text='❗*Проверьте правильность сообщения.*', parse_mode='Markdown')
+        await message.answer(text='❗*Введённые вами номера групп не корректны.*', parse_mode='Markdown')
 
 
 async def send_event(callback: aiogram.types.CallbackQuery, state: aiogram.dispatcher.FSMContext):
@@ -100,7 +103,7 @@ async def send_event(callback: aiogram.types.CallbackQuery, state: aiogram.dispa
     await state.finish()
 
 
-def register_create_event_command_handler(dp: aiogram.Dispatcher):
+def register_create_event_command_handlers(dp: aiogram.Dispatcher):
     dp.register_message_handler(callback=create_event_command, commands=['create_event'])
     dp.register_message_handler(callback=get_event_name, content_types=['text'],
                                 state=states.create_event_states.CreateEventStates.get_event_name)
@@ -113,4 +116,4 @@ def register_create_event_command_handler(dp: aiogram.Dispatcher):
     dp.register_message_handler(callback=get_channels_to_send, content_types=['text'],
                                 state=states.create_event_states.CreateEventStates.select_channel)
     dp.register_callback_query_handler(callback=send_event, text='send_event',
-                                       state=states.create_event_states.CreateEventStates.is_all_correct)
+                                       state=states.create_event_states.CreateEventStates.send_event)
