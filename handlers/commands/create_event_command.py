@@ -42,16 +42,8 @@ async def get_event_picture(message: aiogram.types.Message, state: aiogram.dispa
     event_picture_id = message.photo[0]["file_id"]
     async with state.proxy() as data:
         data['event_picture_id'] = event_picture_id
-    await message.answer(text='✅*Изображение события получено и сохранено.\n❕Отправьте описание события.*',
-                         parse_mode='Markdown')
-    await states.create_event_states.CreateEventStates.next()
-
-
-async def without_picture(callback: aiogram.types.CallbackQuery, state: aiogram.dispatcher.FSMContext):
-    async with state.proxy() as data:
-        data['event_picture_id'] = None
-    await bot.send_message(chat_id=callback.from_user.id, text='❕*Отправьте описание события.*',
-                           parse_mode='Markdown')
+    await message.answer(text='✅*Изображение события получено и сохранено.\n*', parse_mode='Markdown')
+    await message.answer(text='❕*Отправьте описание события.*', parse_mode='Markdown')
     await states.create_event_states.CreateEventStates.next()
 
 
@@ -73,7 +65,7 @@ async def get_channels_to_send(message: aiogram.types.Message, state: aiogram.di
             text=message.text) and await filters.is_channel_numbers_correct.is_channel_numbers_correct(
             text=message.text, channels_ids_dict=channels_ids_dict):
         channels_indexes = message.text.split(' ')
-        await message.answer(text='❕*Предпросмотр:*', parse_mode='Markdown')
+        await message.answer(text='✉️*Предпросмотр:*', parse_mode='Markdown')
         async with state.proxy() as data:
             event_name = data['event_name']
             event_picture_id = data['event_picture_id']
@@ -84,7 +76,8 @@ async def get_channels_to_send(message: aiogram.types.Message, state: aiogram.di
                                                                  event_description=event_description)
         await states.create_event_states.CreateEventStates.next()
     else:
-        await message.answer(text='⚠️*Введённые вами номера групп не корректны.*', parse_mode='Markdown')
+        await message.answer(text='⚠️*Введённые вами номера групп не корректны, попробуйте снова.*',
+                             parse_mode='Markdown')
 
 
 async def send_event(callback: aiogram.types.CallbackQuery, state: aiogram.dispatcher.FSMContext):
@@ -112,8 +105,6 @@ def register_create_event_command_handlers(dp: aiogram.Dispatcher):
                                 state=states.create_event_states.CreateEventStates.get_event_name)
     dp.register_message_handler(callback=get_event_picture, content_types=['photo'],
                                 state=states.create_event_states.CreateEventStates.get_event_picture)
-    dp.register_callback_query_handler(callback=without_picture, text='without_picture',
-                                       state=states.create_event_states.CreateEventStates.get_event_picture)
     dp.register_message_handler(callback=get_event_description, content_types=['text'],
                                 state=states.create_event_states.CreateEventStates.get_event_description)
     dp.register_message_handler(callback=get_channels_to_send, content_types=['text'],
