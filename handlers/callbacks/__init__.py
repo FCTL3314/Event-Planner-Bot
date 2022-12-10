@@ -1,2 +1,2 @@
-import handlers.callbacks.cancel_event_send
+import handlers.callbacks.cancel_buttons
 import handlers.callbacks.without_picture
