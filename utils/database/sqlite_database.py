@@ -35,6 +35,10 @@ class SQLiteDatabase:
         self.__cur.execute("""CREATE TABLE IF NOT EXISTS groups (
         group_id PRIMARY KEY,
         group_name text)""")
+        self.__cur.execute("""CREATE TABLE IF NOT EXISTS event_votes (
+        message_id PRIMARY KEY,
+        user_id bigint,
+        vote varchar(16))""")
 
     def add_channel(self, channel_id, channel_name):
         self.__cur.execute(f"""
@@ -57,3 +61,18 @@ class SQLiteDatabase:
     def get_groups(self):
         self.__cur.execute(f"""SELECT * FROM groups""")
         return self.__cur.fetchall()
+
+    def get_vote(self, message_id, user_id):
+        self.__cur.execute(f"""
+        SELECT vote FROM event_votes WHERE (message_id = {message_id}) and (user_id = {user_id})
+        """)
+        return self.__cur.fetchone()
+
+    def add_vote(self, message_id, user_id, vote: str):
+        print(message_id)
+        print(user_id)
+        print(vote)
+        self.__cur.execute(f"""INSERT INTO event_votes (message_id, user_id, vote) VALUES ({message_id}, {user_id}, '{vote}')""")
+
+    def remove_vote(self, message_id, user_id):
+        self.__cur.execute(f"""DELETE FROM event_votes WHERE (message_id = {message_id}) and (user_id = {user_id})""")
