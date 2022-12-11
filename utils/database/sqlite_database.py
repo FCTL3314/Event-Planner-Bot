@@ -69,9 +69,6 @@ class SQLiteDatabase:
         return self.__cur.fetchone()
 
     def add_vote(self, message_id, user_id, vote: str):
-        print(message_id)
-        print(user_id)
-        print(vote)
         self.__cur.execute(f"""INSERT INTO event_votes (message_id, user_id, vote) VALUES ({message_id}, {user_id}, '{vote}')""")
 
     def remove_vote(self, message_id, user_id):
