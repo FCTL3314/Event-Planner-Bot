@@ -31,7 +31,7 @@ async def get_event_name(message: aiogram.types.Message, state: aiogram.dispatch
     event_name = message.text
     async with state.proxy() as data:
         data['event_name'] = event_name
-    await message.answer(text='❕*Отправьте изображение события, либо нажмите на кнопку \"Без изображения\".*',
+    await message.answer(text='❕*Отправьте сжатое изображение события, либо нажмите на кнопку \"Без изображения\".*',
                          reply_markup=keyboards.inline.withput_photo_keyboard.without_photo_keyboard(),
                          parse_mode='Markdown')
     await states.create_event_states.CreateEventStates.next()

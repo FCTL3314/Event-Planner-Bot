@@ -36,7 +36,7 @@ class SQLiteDatabase:
         group_id PRIMARY KEY,
         group_name text)""")
         self.__cur.execute("""CREATE TABLE IF NOT EXISTS event_votes (
-        message_id PRIMARY KEY,
+        message_id,
         user_id bigint,
         vote varchar(16))""")
 
@@ -69,7 +69,9 @@ class SQLiteDatabase:
         return self.__cur.fetchone()
 
     def add_vote(self, message_id, user_id, vote: str):
-        self.__cur.execute(f"""INSERT INTO event_votes (message_id, user_id, vote) VALUES ({message_id}, {user_id}, '{vote}')""")
+        self.__cur.execute(f"""
+        INSERT INTO event_votes (message_id, user_id, vote) VALUES ({message_id}, {user_id}, '{vote}')
+        """)
 
     def remove_vote(self, message_id, user_id):
         self.__cur.execute(f"""DELETE FROM event_votes WHERE (message_id = {message_id}) and (user_id = {user_id})""")
