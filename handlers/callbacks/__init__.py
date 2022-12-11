@@ -1,2 +1,3 @@
 import handlers.callbacks.cancel_buttons
+import handlers.callbacks.vote_buttons
 import handlers.callbacks.without_picture
