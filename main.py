@@ -11,6 +11,7 @@ from data.config import LOGGING_LEVEL, LOGGING_FILE_NAME, LOGGING_FILE_MODE, LOG
 # logging.basicConfig(level=LOGGING_LEVEL, filename=f"{LOGGING_FILE_NAME}.log", filemode=LOGGING_FILE_MODE,
 #                     format=LOGGING_FORMAT)
 
+handlers.callbacks.vote_buttons.register_vote_buttons_handler(dp=dp)
 handlers.callbacks.without_picture.register_without_picture(dp=dp)
 handlers.callbacks.cancel_buttons.register_cancel_buttons_handlers(dp=dp)
 handlers.messages.bot_channel_actions.register_bot_added_to_channel_handlers(dp=dp)
