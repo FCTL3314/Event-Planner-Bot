@@ -12,5 +12,4 @@ async def cancel_buttons(callback: aiogram.types.CallbackQuery, state: aiogram.d
 
 def register_cancel_buttons_handlers(dp: aiogram.Dispatcher):
     dp.register_callback_query_handler(callback=cancel_buttons, text='cancel',
-                                       state=[states.create_event_states.CreateEventStates.send_event,
-                                              states.create_survey_states.CreateSurveyStates.send_survey])
+                                       state=states.create_event_states.CreateEventStates.send_event)

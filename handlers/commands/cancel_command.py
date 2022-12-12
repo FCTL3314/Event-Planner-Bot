@@ -20,9 +20,4 @@ def register_cancel_command_handlers(dp: aiogram.Dispatcher):
                                        states.create_event_states.CreateEventStates.get_event_description,
                                        states.create_event_states.CreateEventStates.get_event_picture,
                                        states.create_event_states.CreateEventStates.get_channels_to_send,
-                                       states.create_event_states.CreateEventStates.send_event,
-                                       states.create_survey_states.CreateSurveyStates.get_survey_name,
-                                       states.create_survey_states.CreateSurveyStates.get_survey_answers,
-                                       states.create_survey_states.CreateSurveyStates.
-                                get_channels_to_send,
-                                       states.create_survey_states.CreateSurveyStates.send_survey])
+                                       states.create_event_states.CreateEventStates.send_event])

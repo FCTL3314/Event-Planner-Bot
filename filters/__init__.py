@@ -1,3 +1,2 @@
 import filters.is_channel_numbers_correct
-import filters.is_survey_answers_correct
 import filters.is_text_consists_of_digits

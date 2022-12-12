@@ -17,7 +17,6 @@ handlers.callbacks.cancel_buttons.register_cancel_buttons_handlers(dp=dp)
 handlers.messages.bot_channel_actions.register_bot_added_to_channel_handlers(dp=dp)
 handlers.commands.cancel_command.register_cancel_command_handlers(dp=dp)
 handlers.commands.create_event_command.register_create_event_command_handlers(dp=dp)
-handlers.commands.create_survey_command.register_create_survey_command_handlers(dp=dp)
 
 if __name__ == '__main__':
     while True:
