@@ -55,13 +55,16 @@ async def get_event_description(message: aiogram.types.Message, state: aiogram.d
 
 
 async def get_vote_limit(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
-    vote_limit = message.text
-    async with state.proxy() as data:
-        data['vote_limit'] = vote_limit
-        channels_text = data['channels_text']
-    await message.answer(text=f'❕*Отправьте номер канала, либо укажите через пробел номера каналов, '
-                              f'в которые необходимо отправить событие:*\n{channels_text}', parse_mode='Markdown')
-    await states.create_event_states.CreateEventStates.next()
+    vote_limit = message.text.replace(' ', '')
+    if vote_limit.isdigit():
+        async with state.proxy() as data:
+            data['vote_limit'] = vote_limit
+            channels_text = data['channels_text']
+        await message.answer(text=f'❕*Отправьте номер канала, либо укажите через пробел номера каналов, '
+                                  f'в которые необходимо отправить событие:*\n{channels_text}', parse_mode='Markdown')
+        await states.create_event_states.CreateEventStates.next()
+    else:
+        await message.answer(text='⚠️*Введённые вами данные - не число.*', parse_mode='Markdown')
 
 
 async def get_channels_to_send(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
@@ -91,6 +94,7 @@ async def send_event(callback: aiogram.types.CallbackQuery, state: aiogram.dispa
         event_name = data['event_name']
         event_picture_id = data['event_picture_id']
         event_description = data['event_description']
+        vote_limit = int(data['vote_limit'])
         channels_indexes = data['channels_indexes']
         channels_ids_dict = data['channels_ids_dict']
     for number in channels_indexes:
@@ -98,12 +102,14 @@ async def send_event(callback: aiogram.types.CallbackQuery, state: aiogram.dispa
             await bot.send_photo(chat_id=channels_ids_dict[number], photo=event_picture_id,
                                  caption=f"*{event_name}*\n{event_description}",
                                  reply_markup=keyboards.inline.vote.vote_keyboard(amount_of_likes=0,
-                                                                                  amount_of_dislikes=0),
+                                                                                  amount_of_dislikes=0,
+                                                                                  vote_limit=vote_limit),
                                  parse_mode='Markdown')
         else:
             await bot.send_message(chat_id=channels_ids_dict[number], text=f"*{event_name}*\n{event_description}",
                                    reply_markup=keyboards.inline.vote.vote_keyboard(amount_of_likes=0,
-                                                                                    amount_of_dislikes=0),
+                                                                                    amount_of_dislikes=0,
+                                                                                    vote_limit=vote_limit),
                                    parse_mode='Markdown')
     await bot.send_message(chat_id=callback.from_user.id, text='✅Событие успешно отправлено!')
     await state.finish()
