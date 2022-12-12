@@ -14,7 +14,10 @@ async def vote_buttons(callback: aiogram.types.CallbackQuery):
     message_id = callback.message.message_id
     with utils.database.database as db:
         user_vote = db.get_vote(message_id=message_id, user_id=user_id)
-    if vote == 'like' and not user_vote:
+    if amount_of_likes == 1:
+        await bot.edit_message_reply_markup(chat_id=chat_id, message_id=message_id,
+                                            reply_markup=keyboards.inline.vote_limit.vote_limit_keyboard())
+    elif vote == 'like' and not user_vote:
         await bot.edit_message_reply_markup(chat_id=chat_id, message_id=message_id,
                                             reply_markup=keyboards.inline.vote.vote_keyboard(
                                                 amount_of_likes=amount_of_likes + 1,
