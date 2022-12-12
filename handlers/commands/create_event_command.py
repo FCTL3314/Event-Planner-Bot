@@ -50,6 +50,14 @@ async def get_event_description(message: aiogram.types.Message, state: aiogram.d
     event_description = message.text
     async with state.proxy() as data:
         data['event_description'] = event_description
+    await message.answer(text=f'❕Отправьте лимит голосов.', parse_mode='Markdown')
+    await states.create_event_states.CreateEventStates.next()
+
+
+async def get_vote_limit(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
+    vote_limit = message.text
+    async with state.proxy() as data:
+        data['vote_limit'] = vote_limit
         channels_text = data['channels_text']
     await message.answer(text=f'❕*Отправьте номер канала, либо укажите через пробел номера каналов, '
                               f'в которые необходимо отправить событие:*\n{channels_text}', parse_mode='Markdown')
@@ -109,6 +117,8 @@ def register_create_event_command_handlers(dp: aiogram.Dispatcher):
                                 state=states.create_event_states.CreateEventStates.get_event_picture)
     dp.register_message_handler(callback=get_event_description, content_types=['text'],
                                 state=states.create_event_states.CreateEventStates.get_event_description)
+    dp.register_message_handler(callback=get_vote_limit, content_types=['text'],
+                                state=states.create_event_states.CreateEventStates.get_vote_limit)
     dp.register_message_handler(callback=get_channels_to_send, content_types=['text'],
                                 state=states.create_event_states.CreateEventStates.get_channels_to_send)
     dp.register_callback_query_handler(callback=send_event, text='send_event',
