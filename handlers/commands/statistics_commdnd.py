@@ -5,11 +5,12 @@ import utils
 
 async def statistics_command(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
     with utils.database.database as db:
-        events = db.execute(query=f'SELECT DISTINCT (message_id), event_name FROM event_data')
+        events = db.execute(query=f'SELECT DISTINCT (message_id), event_name, creation_date FROM'
+                                  f' event_data ORDER BY creation_date')
     result = ''
     channels_ids_dict = dict()
     for i, data in enumerate(events, 1):
-        result += f'{i}. {data[1]}\n'
+        result += f'{i}. {data[1]}({data[2]})\n'
         channels_ids_dict[i] = data[0], data[1]
     async with state.proxy() as data:
         data['channels_ids_dict'] = channels_ids_dict
