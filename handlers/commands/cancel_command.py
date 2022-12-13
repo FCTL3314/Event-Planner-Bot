@@ -17,7 +17,9 @@ def register_cancel_command_handlers(dp: aiogram.Dispatcher):
                                 commands=['cancel'])
     dp.register_message_handler(callback=cancel_command, commands=['cancel'],
                                 state=[states.create_event_states.CreateEventStates.get_event_name,
-                                       states.create_event_states.CreateEventStates.get_event_description,
                                        states.create_event_states.CreateEventStates.get_event_picture,
+                                       states.create_event_states.CreateEventStates.get_event_description,
+                                       states.create_event_states.CreateEventStates.get_vote_limit,
                                        states.create_event_states.CreateEventStates.get_channels_to_send,
-                                       states.create_event_states.CreateEventStates.send_event])
+                                       states.create_event_states.CreateEventStates.send_event,
+                                       states.statistic_command_states.CreateStatisticsStates.get_channels])
