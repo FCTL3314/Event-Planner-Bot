@@ -110,7 +110,7 @@ async def send_event(callback: aiogram.types.CallbackQuery, state: aiogram.dispa
             first_message_chat_id = first_message['chat']['id']
             with utils.database.database as db:
                 db.execute(f"INSERT INTO event_data VALUES ({first_message_chat_id}, {first_message_id}, "
-                           f"'{event_name}')")
+                           f"'{event_name}', current_date)")
         else:
             second_message = await bot.send_message(chat_id=channels_ids_dict[number],
                                                     text=f"*{event_name}*\n{event_description}",
@@ -123,7 +123,7 @@ async def send_event(callback: aiogram.types.CallbackQuery, state: aiogram.dispa
             second_message_chat_id = second_message['chat']['id']
             with utils.database.database as db:
                 db.execute(f"INSERT INTO event_data VALUES ({second_message_chat_id}, {second_message_id}, "
-                           f"'{event_name}')")
+                           f"'{event_name}', current_date)")
     await bot.send_message(chat_id=callback.from_user.id, text='✅Событие успешно отправлено!')
     await state.finish()
 
