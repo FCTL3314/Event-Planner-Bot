@@ -72,7 +72,7 @@ async def get_channels_to_send(message: aiogram.types.Message, state: aiogram.di
         channels_ids_dict = data['channels_ids_dict']
     if await filters.is_text_consists_of_digits.is_text_consists_of_digits(
             text=message.text) and await filters.is_channel_numbers_correct.is_channel_numbers_correct(
-            text=message.text, channels_ids_dict=channels_ids_dict):
+        text=message.text, channels_ids_dict=channels_ids_dict):
         channels_indexes = message.text.split(' ')
         await message.answer(text='✉️*Предпросмотр:*', parse_mode='Markdown')
         async with state.proxy() as data:
@@ -99,18 +99,31 @@ async def send_event(callback: aiogram.types.CallbackQuery, state: aiogram.dispa
         channels_ids_dict = data['channels_ids_dict']
     for number in channels_indexes:
         if event_picture_id:
-            await bot.send_photo(chat_id=channels_ids_dict[number], photo=event_picture_id,
-                                 caption=f"*{event_name}*\n{event_description}",
-                                 reply_markup=keyboards.inline.vote.vote_keyboard(amount_of_likes=0,
-                                                                                  amount_of_dislikes=0,
-                                                                                  vote_limit=vote_limit),
-                                 parse_mode='Markdown')
+            first_message = await bot.send_photo(chat_id=channels_ids_dict[number], photo=event_picture_id,
+                                                 caption=f"*{event_name}*\n{event_description}",
+                                                 reply_markup=keyboards.inline.vote.vote_keyboard(
+                                                     amount_of_likes=0,
+                                                     amount_of_dislikes=0,
+                                                     vote_limit=vote_limit),
+                                                 parse_mode='Markdown')
+            first_message_id = first_message['message_id']
+            first_message_chat_id = first_message['chat']['id']
+            with utils.database.database as db:
+                db.execute(f"INSERT INTO event_data VALUES ({first_message_chat_id}, {first_message_id}, "
+                           f"'{event_name}')")
         else:
-            await bot.send_message(chat_id=channels_ids_dict[number], text=f"*{event_name}*\n{event_description}",
-                                   reply_markup=keyboards.inline.vote.vote_keyboard(amount_of_likes=0,
-                                                                                    amount_of_dislikes=0,
-                                                                                    vote_limit=vote_limit),
-                                   parse_mode='Markdown')
+            second_message = await bot.send_message(chat_id=channels_ids_dict[number],
+                                                    text=f"*{event_name}*\n{event_description}",
+                                                    reply_markup=keyboards.inline.vote.vote_keyboard(
+                                                        amount_of_likes=0,
+                                                        amount_of_dislikes=0,
+                                                        vote_limit=vote_limit),
+                                                    parse_mode='Markdown')
+            second_message_id = second_message['message_id']
+            second_message_chat_id = second_message['chat']['id']
+            with utils.database.database as db:
+                db.execute(f"INSERT INTO event_data VALUES ({second_message_chat_id}, {second_message_id}, "
+                           f"'{event_name}')")
     await bot.send_message(chat_id=callback.from_user.id, text='✅Событие успешно отправлено!')
     await state.finish()
 
