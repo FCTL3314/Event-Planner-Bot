@@ -47,7 +47,8 @@ class SQLiteDatabase:
         self.__cur.execute("""CREATE TABLE IF NOT EXISTS event_data (
         chat_id bigint,
         message_id bigint,
-        event_name text)""")
+        event_name text,
+        creation_date datatime)""")
 
     def add_channel(self, channel_id, channel_name):
         self.__cur.execute(f"""
