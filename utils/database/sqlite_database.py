@@ -36,7 +36,8 @@ class SQLiteDatabase:
         group_id PRIMARY KEY,
         group_name text)""")
         self.__cur.execute("""CREATE TABLE IF NOT EXISTS event_votes (
-        message_id,
+        chat_id bigint,
+        message_id bigint,
         user_id bigint,
         vote varchar(16))""")
 
@@ -62,16 +63,20 @@ class SQLiteDatabase:
         self.__cur.execute(f"""SELECT * FROM groups""")
         return self.__cur.fetchall()
 
-    def get_vote(self, message_id, user_id):
+    def get_vote(self, chat_id, message_id, user_id):
         self.__cur.execute(f"""
-        SELECT vote FROM event_votes WHERE (message_id = {message_id}) and (user_id = {user_id})
-        """)
+            SELECT vote FROM event_votes WHERE (message_id = {message_id}) and (user_id = {user_id} and 
+            (chat_id = {chat_id}))
+            """)
         return self.__cur.fetchone()
 
-    def add_vote(self, message_id, user_id, vote: str):
+    def add_vote(self, chat_id, message_id, user_id, vote: str):
         self.__cur.execute(f"""
-        INSERT INTO event_votes (message_id, user_id, vote) VALUES ({message_id}, {user_id}, '{vote}')
-        """)
+            INSERT INTO event_votes (chat_id, message_id, user_id, vote) VALUES 
+            ({chat_id}, {message_id}, {user_id}, '{vote}')
+            """)
 
-    def remove_vote(self, message_id, user_id):
-        self.__cur.execute(f"""DELETE FROM event_votes WHERE (message_id = {message_id}) and (user_id = {user_id})""")
+    def remove_vote(self, chat_id, message_id, user_id):
+        self.__cur.execute(f"""
+        DELETE FROM event_votes WHERE (message_id = {message_id}) and (user_id = {user_id}) and  (chat_id = {chat_id})
+        """)
