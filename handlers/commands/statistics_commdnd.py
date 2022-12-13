@@ -18,7 +18,8 @@ async def statistics_command(message: aiogram.types.Message, state: aiogram.disp
     # with utils.database.database as db:
     #     votes = db.execute(query=f'SELECT DISTINCT (message_id), vote FROM event_votes')
     await states.statistic_command_states.CreateStatisticsStates.get_channels.set()
-    await message.answer(text=f'<b> Введите номер события по которому нужно отобразить статистику:</b>\n{result}',
+    await message.answer(text=f'<b> ℹ️Введите номер события по которому нужно отобразить статистику:</b>\n{result}'
+                              f'<b> Напишите /cancel что бы отменить выбор события.</b>',
                          parse_mode="HTML")
 
 
