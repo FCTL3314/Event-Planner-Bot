@@ -33,6 +33,7 @@ async def get_channel_to_show(message: aiogram.types.Message, state: aiogram.dis
                                                    f"(message_id = {channel[0]}) and (vote = 'like')")
             await message.answer(text=await create_users_who_vote_like_text(users=users_who_vote_like),
                                  parse_mode='HTML')
+            await state.finish()
     else:
         await message.answer(text='⚠️*Введённое вами число некорректно.*', parse_mode='Markdown')
 
