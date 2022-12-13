@@ -27,6 +27,10 @@ class SQLiteDatabase:
         self.__cur = self.__conn.cursor()
         self._connected = True
 
+    def execute(self, query):
+        self.__cur.execute(f"""{query}""")
+        return self.__cur.fetchall()
+
     def create_tables(self):
         self.__cur.execute("""
         CREATE TABLE IF NOT EXISTS channels (
@@ -40,6 +44,10 @@ class SQLiteDatabase:
         message_id bigint,
         user_id bigint,
         vote varchar(16))""")
+        self.__cur.execute("""CREATE TABLE IF NOT EXISTS event_data (
+        chat_id bigint,
+        message_id bigint,
+        event_name text)""")
 
     def add_channel(self, channel_id, channel_name):
         self.__cur.execute(f"""
