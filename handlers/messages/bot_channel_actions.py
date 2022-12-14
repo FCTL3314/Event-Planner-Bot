@@ -12,23 +12,23 @@ async def bot_channel_actions(message: aiogram.types.Message):
         if channel_info['type'] == 'channel':
             if status == 'administrator':
                 with utils.database.database as db:
-                    db.add_channel(channel_name=channel_info['title'], channel_id=channel_info['id'])
+                    db.execute(f"INSERT INTO channels VALUES ({channel_info['id']}, '{channel_info['title']}')")
                 for admin in BOT_ADMIN_IDS:
                     await bot.send_message(chat_id=admin, text=f'ℹ️Бот добавлен в канал: {channel_info["title"]}.')
             elif status == 'kicked' or status == 'left':
                 with utils.database.database as db:
-                    db.remove_channel(channel_id=channel_info['id'])
+                    db.execute(f"DELETE FROM channels WHERE channel_id = {channel_info['id']}")
                 for admin in BOT_ADMIN_IDS:
                     await bot.send_message(chat_id=admin, text=f'ℹ️Бот удалён из канала: {channel_info["title"]}.')
         elif channel_info['type'] == 'group':
             if status == 'member':
                 with utils.database.database as db:
-                    db.add_group(group_name=channel_info['title'], group_id=channel_info['id'])
+                    db.execute(f"INSERT INTO groups VALUES ({channel_info['id']}, '{channel_info['title']}')")
                 for admin in BOT_ADMIN_IDS:
                     await bot.send_message(chat_id=admin, text=f'ℹ️Бот добавлен в группу: {channel_info["title"]}.')
             elif status == 'kicked' or status == 'left':
                 with utils.database.database as db:
-                    db.remove_group(group_id=channel_info['id'])
+                    db.execute(f"DELETE FROM groups WHERE group_id = {channel_info['id']}")
                 for admin in BOT_ADMIN_IDS:
                     await bot.send_message(chat_id=admin, text=f'ℹ️Бот удалён из группы: {channel_info["title"]}.')
 
