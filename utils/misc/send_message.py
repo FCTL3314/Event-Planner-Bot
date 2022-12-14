@@ -15,8 +15,3 @@ async def send_preview_of_event(message: aiogram.types.Message, event_picture_id
         await message.answer(text=f'*{event_name}*\n{event_description}',
                              reply_markup=keyboards.inline.send_event.send_event_keyboard(),
                              parse_mode='Markdown')
-
-
-async def send_preview_of_survey(message: aiogram.types.Message, survey_name, survey_answers):
-    await message.answer_poll(question=survey_name, options=survey_answers.split('@'), is_anonymous=False,
-                              reply_markup=keyboards.inline.send_survey.send_survey_keyboard())
