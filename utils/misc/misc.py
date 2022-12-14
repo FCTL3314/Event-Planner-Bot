@@ -1,3 +1,5 @@
+import utils
+
 from typing import List
 
 
@@ -28,3 +30,15 @@ async def create_users_vote_text(users, emoji):
     for i, data in enumerate(users, 1):
         result += f'{i}. <a href="tg://user?id={data[0]}">{data[1]} {data[2]}</a>\n'
     return result
+
+
+async def insert_event_into_db(chat_id, message_id, event_name, vote_limit, link_button_url, link_button_name):
+    if link_button_name:
+        with utils.database.database as db:
+            db.execute(f"INSERT INTO event_data VALUES ({chat_id}, {message_id}, "
+                       f"'{event_name}', 0, 0, {vote_limit}, '{link_button_url}', '{link_button_name}',"
+                       f"current_date)")
+    else:
+        with utils.database.database as db:
+            db.execute(f"INSERT INTO event_data VALUES ({chat_id}, {message_id}, "
+                       f"'{event_name}', 0, 0, {vote_limit}, null, null, current_date)")
