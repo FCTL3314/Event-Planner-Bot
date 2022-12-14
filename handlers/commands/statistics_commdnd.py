@@ -6,7 +6,7 @@ import utils
 async def statistics_command(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
     with utils.database.database as db:
         events = db.execute(query=f'SELECT DISTINCT (message_id), event_name, creation_date FROM'
-                                  f' event_data ORDER BY creation_date')
+                                  f' event_data ORDER BY creation_date DESC')
     result = ''
     channels_ids_dict = dict()
     for i, data in enumerate(events, 1):
