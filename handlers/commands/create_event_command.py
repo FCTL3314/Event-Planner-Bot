@@ -124,9 +124,8 @@ async def send_event(callback: aiogram.types.CallbackQuery, state: aiogram.dispa
             first_message = await bot.send_photo(chat_id=channels_ids_dict[number], photo=event_picture_id,
                                                  caption=f"*{event_name}*\n{event_description}",
                                                  reply_markup=keyboards.inline.vote.vote_keyboard(
-                                                     likes_count=0,
-                                                     record_count=0,
-                                                     think_count=0,
+                                                     fire_button_count=0,
+                                                     think_button_count=0,
                                                      link_button_name=link_button_name,
                                                      link_button_url=link_button_url),
                                                  parse_mode='Markdown')
@@ -135,19 +134,18 @@ async def send_event(callback: aiogram.types.CallbackQuery, state: aiogram.dispa
             if link_button_name:
                 with utils.database.database as db:
                     db.execute(f"INSERT INTO event_data VALUES ({first_message_chat_id}, {first_message_id}, "
-                               f"'{event_name}', 0, 0, 0, {vote_limit}, '{link_button_url}', '{link_button_name}',"
+                               f"'{event_name}', 0, 0, {vote_limit}, '{link_button_url}', '{link_button_name}',"
                                f"current_date)")
             else:
                 with utils.database.database as db:
                     db.execute(f"INSERT INTO event_data VALUES ({first_message_chat_id}, {first_message_id}, "
-                               f"'{event_name}', 0, 0, 0, {vote_limit}, null, null, current_date)")
+                               f"'{event_name}', 0, 0, {vote_limit}, null, null, current_date)")
         else:
             second_message = await bot.send_message(chat_id=channels_ids_dict[number],
                                                     text=f"*{event_name}*\n{event_description}",
                                                     reply_markup=keyboards.inline.vote.vote_keyboard(
-                                                        likes_count=0,
-                                                        record_count=0,
-                                                        think_count=0,
+                                                        fire_button_count=0,
+                                                        think_button_count=0,
                                                         link_button_name=link_button_name,
                                                         link_button_url=link_button_url),
                                                     parse_mode='Markdown')
@@ -156,12 +154,12 @@ async def send_event(callback: aiogram.types.CallbackQuery, state: aiogram.dispa
             if link_button_name:
                 with utils.database.database as db:
                     db.execute(f"INSERT INTO event_data VALUES ({second_message_chat_id}, {second_message_id}, "
-                               f"'{event_name}', 0, 0, 0, {vote_limit}, '{link_button_url}', '{link_button_name}', "
+                               f"'{event_name}', 0, 0, {vote_limit}, '{link_button_url}', '{link_button_name}', "
                                f"current_date)")
             else:
                 with utils.database.database as db:
                     db.execute(f"INSERT INTO event_data VALUES ({second_message_chat_id}, {second_message_id}, "
-                               f"'{event_name}', 0, 0, 0, {vote_limit}, null, null, current_date)")
+                               f"'{event_name}', 0, 0, {vote_limit}, null, null, current_date)")
     await bot.send_message(chat_id=callback.from_user.id, text='✅Событие успешно отправлено!')
     await state.finish()
 

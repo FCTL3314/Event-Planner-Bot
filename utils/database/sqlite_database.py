@@ -43,15 +43,16 @@ class SQLiteDatabase:
         chat_id bigint,
         message_id bigint,
         user_id bigint,
+        first_name text,
+        last_name text,
         vote varchar(16))""")
         self.__cur.execute("""CREATE TABLE IF NOT EXISTS event_data (
         chat_id bigint,
         message_id bigint,
         event_name text,
-        likes_count int,
-        record_count int,
-        think_count int,
-        vote_limit int,
+        fire_button_count int,
+        think_button_count int,
+        fire_button_limit int,
         link_button_url text,
         link_button_name text,
         creation_date datatime)""")
@@ -85,10 +86,9 @@ class SQLiteDatabase:
             """)
         return self.__cur.fetchone()
 
-    def add_vote(self, chat_id, message_id, user_id, vote: str):
+    def add_vote(self, chat_id, message_id, user_id, vote, first_name, last_name):
         self.__cur.execute(f"""
-            INSERT INTO event_votes (chat_id, message_id, user_id, vote) VALUES 
-            ({chat_id}, {message_id}, {user_id}, '{vote}')
+            INSERT INTO event_votes VALUES ({chat_id}, {message_id}, {user_id}, '{first_name}', '{last_name}', '{vote}')
             """)
 
     def remove_vote(self, chat_id, message_id, user_id):
