@@ -27,7 +27,7 @@ class SQLiteDatabase:
         self.__cur = self.__conn.cursor()
         self._connected = True
 
-    def execute(self, query):
+    def execute(self, query: str):
         self.__cur.execute(f"""{query}""")
         return self.__cur.fetchall()
 
@@ -56,12 +56,3 @@ class SQLiteDatabase:
         link_button_url text,
         link_button_name text,
         creation_date datatime)""")
-
-    def get_channels(self):
-        self.__cur.execute(f"""SELECT * FROM channels""")
-        return self.__cur.fetchall()
-
-    def get_groups(self):
-        self.__cur.execute(f"""SELECT * FROM groups""")
-        return self.__cur.fetchall()
-
