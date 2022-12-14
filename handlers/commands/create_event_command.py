@@ -70,8 +70,7 @@ async def get_link_button_name(message: aiogram.types.Message, state: aiogram.di
     text = message.text
     async with state.proxy() as data:
         data['link_button_name'] = text
-        channels_text = data['channels_text']
-    await message.answer(text=f'❕*Отправьте ссылку этой кнопки.*\n{channels_text}', parse_mode='Markdown')
+    await message.answer(text=f'❕*Отправьте ссылку для этой кнопки.*', parse_mode='Markdown')
     await states.create_event_states.CreateEventStates.next()
 
 
@@ -133,9 +132,15 @@ async def send_event(callback: aiogram.types.CallbackQuery, state: aiogram.dispa
                                                  parse_mode='Markdown')
             first_message_id = first_message['message_id']
             first_message_chat_id = first_message['chat']['id']
-            with utils.database.database as db:
-                db.execute(f"INSERT INTO event_data VALUES ({first_message_chat_id}, {first_message_id}, "
-                           f"'{event_name}', 0, 0, 0, {vote_limit}, null, null, current_date)")
+            if link_button_name:
+                with utils.database.database as db:
+                    db.execute(f"INSERT INTO event_data VALUES ({first_message_chat_id}, {first_message_id}, "
+                               f"'{event_name}', 0, 0, 0, {vote_limit}, '{link_button_name}', '{link_button_url}',"
+                               f"current_date)")
+            else:
+                with utils.database.database as db:
+                    db.execute(f"INSERT INTO event_data VALUES ({first_message_chat_id}, {first_message_id}, "
+                               f"'{event_name}', 0, 0, 0, {vote_limit}, null, null, current_date)")
         else:
             second_message = await bot.send_message(chat_id=channels_ids_dict[number],
                                                     text=f"*{event_name}*\n{event_description}",
@@ -148,9 +153,15 @@ async def send_event(callback: aiogram.types.CallbackQuery, state: aiogram.dispa
                                                     parse_mode='Markdown')
             second_message_id = second_message['message_id']
             second_message_chat_id = second_message['chat']['id']
-            with utils.database.database as db:
-                db.execute(f"INSERT INTO event_data VALUES ({second_message_chat_id}, {second_message_id}, "
-                           f"'{event_name}', 0, 0, 0, {vote_limit}, null, null, current_date)")
+            if link_button_name:
+                with utils.database.database as db:
+                    db.execute(f"INSERT INTO event_data VALUES ({second_message_chat_id}, {second_message_id}, "
+                               f"'{event_name}', 0, 0, 0, {vote_limit}, '{link_button_name}', '{link_button_url}', "
+                               f"current_date)")
+            else:
+                with utils.database.database as db:
+                    db.execute(f"INSERT INTO event_data VALUES ({second_message_chat_id}, {second_message_id}, "
+                               f"'{event_name}', 0, 0, 0, {vote_limit}, null, null, current_date)")
     await bot.send_message(chat_id=callback.from_user.id, text='✅Событие успешно отправлено!')
     await state.finish()
 
