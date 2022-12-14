@@ -1,7 +1,7 @@
 import aiogram
 
 
-def vote_limit_keyboard(limit, link_button_name=None, link_button_url=None):
+def vote_limit_keyboard(limit: int, link_button_name=None, link_button_url=None) -> aiogram.types.InlineKeyboardMarkup:
     inline_keyboard = aiogram.types.InlineKeyboardMarkup()
     limit_filled_button = aiogram.types.InlineKeyboardButton(text=f'❌{limit}/{limit} лимит исчерпан',
                                                              callback_data='limit')
