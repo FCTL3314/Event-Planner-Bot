@@ -5,15 +5,16 @@ import utils
 
 async def statistics_command(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
     with utils.database.database as db:
-        events = db.execute(query=f'SELECT DISTINCT (message_id), event_name, creation_date FROM'
-                                  f' event_data ORDER BY creation_date DESC')
+        events = db.execute(f'SELECT message_id, chat_id, event_name, creation_date '
+                            f'FROM event_data WHERE message_id IN '
+                            f'(SELECT message_id FROM (SELECT DISTINCT chat_id, message_id FROM event_data))')
     result = ''
-    channels_ids_dict = dict()
+    channels_numbers_dict = dict()
     for i, data in enumerate(events, 1):
-        result += f'{i}. {data[1]}({data[2]})\n'
-        channels_ids_dict[i] = data[0], data[1]
+        result += f'{i}. {data[2]}({data[3]})\n'
+        channels_numbers_dict[i] = data[0], data[1], data[3]
     async with state.proxy() as data:
-        data['channels_ids_dict'] = channels_ids_dict
+        data['channels_numbers_dict'] = channels_numbers_dict
     await states.statistic_command_states.CreateStatisticsStates.get_channels.set()
     await message.answer(text=f'<b> ℹ️Введите номер события по которому нужно отобразить статистику:</b>\n{result}'
                               f'<b> Напишите /cancel что бы отменить выбор события.</b>',
@@ -23,22 +24,21 @@ async def statistics_command(message: aiogram.types.Message, state: aiogram.disp
 async def get_channel_to_show(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
     channel_number = message.text
     async with state.proxy() as data:
-        channels_ids_dict = data['channels_ids_dict']
-    if channel_number.replace(' ', '').isdigit() and int(channel_number.replace(' ', '')) in channels_ids_dict.keys():
+        channels_numbers_dict = data['channels_numbers_dict']
+    if channel_number.replace(' ', '').isdigit() and int(channel_number.replace(' ', '')) in \
+            channels_numbers_dict.keys():
         async with state.proxy() as data:
-            channel = data['channels_ids_dict'][int(channel_number)]
+            event_data = data['channels_numbers_dict'][int(channel_number)]
         with utils.database.database as db:
-            users_who_vote_like = db.execute(query=f"SELECT user_id FROM event_votes WHERE "
-                                                   f"(message_id = {channel[0]}) and (vote = 'like')")
-            users_who_vote_record = db.execute(query=f"SELECT user_id FROM event_votes WHERE "
-                                                     f"(message_id = {channel[0]}) and (vote = 'record')")
-            users_who_vote_think = db.execute(query=f"SELECT user_id FROM event_votes WHERE "
-                                                    f"(message_id = {channel[0]}) and (vote = 'think')")
-            await message.answer(text=await create_users_vote_text(users=users_who_vote_like, emoji='👍🏼'),
+            users_who_vote_fire = db.execute(query=f"SELECT user_id, first_name, last_name FROM event_votes WHERE "
+                                                   f"(message_id = {event_data[0]}) and (chat_id = {event_data[1]}) "
+                                                   f"and (vote = 'fire')")
+            users_who_vote_think = db.execute(query=f"SELECT user_id, first_name, last_name FROM event_votes WHERE "
+                                                    f"(message_id = {event_data[0]}) and (chat_id = {event_data[1]}) "
+                                                    f"and (vote = 'think')")
+            await message.answer(text=await create_users_vote_text(users=users_who_vote_fire, emoji='🔥'),
                                  parse_mode='HTML')
-            await message.answer(text=await create_users_vote_text(users=users_who_vote_record, emoji='💫'),
-                                 parse_mode='HTML')
-            await message.answer(text=await create_users_vote_text(users=users_who_vote_think, emoji='💤'),
+            await message.answer(text=await create_users_vote_text(users=users_who_vote_think, emoji='🤔'),
                                  parse_mode='HTML')
             await state.finish()
     else:
@@ -47,8 +47,8 @@ async def get_channel_to_show(message: aiogram.types.Message, state: aiogram.dis
 
 async def create_users_vote_text(users, emoji):
     result = f'<b>Пользователи которые нажали</b> {emoji}:\n'
-    for i, user_id in enumerate(users, 1):
-        result += f'{i}. <a href="tg://user?id={user_id[0]}">F_C_T_L</a>\n'
+    for i, data in enumerate(users, 1):
+        result += f'{i}. <a href="tg://user?id={data[0]}">{data[1]} {data[2]}</a>\n'
     return result
 
 
