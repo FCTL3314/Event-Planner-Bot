@@ -26,10 +26,12 @@ async def get_channels_indexes(channels: List[tuple], groups: List[tuple]) -> di
 
 
 async def create_users_vote_text(users, emoji) -> str:
-    result = f'<b>Пользователи которые нажали</b> {emoji}:\n'
+    result = f''
     for i, data in enumerate(users, 1):
         result += f'{i}. <a href="tg://user?id={data[0]}">{data[1]} {data[2]}</a>\n'
-    return result
+    if not result:
+        result = '❕За этот вариант ещё никто не проголосовал.'
+    return f'<b>Пользователи которые нажали</b> {emoji}:\n{result}'
 
 
 async def insert_event_into_db(chat_id: str, message_id: str, event_name: str, vote_limit: int, link_button_url: str,

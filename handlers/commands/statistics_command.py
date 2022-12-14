@@ -13,10 +13,12 @@ async def statistics_command(message: aiogram.types.Message, state: aiogram.disp
     for i, data in enumerate(events, 1):
         result += f'{i}. {data[2]}({data[3]})\n'
         channels_numbers_dict[i] = data[0], data[1], data[2], data[3]
+    if not result:
+        result = '❕Вы ещё не создали ни одного мероприятия.\n'
     async with state.proxy() as data:
         data['channels_numbers_dict'] = channels_numbers_dict
     await states.statistic_command_states.CreateStatisticsStates.get_channels.set()
-    await message.answer(text=f'<b> ℹ️Введите номер события по которому нужно отобразить статистику:</b>\n{result}'
+    await message.answer(text=f'<b> ℹ️Введите номер мероприятия по которому нужно отобразить статистику:</b>\n{result}'
                               f'<b> Напишите /cancel что бы отменить выбор события.</b>',
                          parse_mode="HTML")
 
