@@ -130,8 +130,8 @@ async def send_event(callback: aiogram.types.CallbackQuery, state: aiogram.dispa
                                                      link_button_name=link_button_name,
                                                      link_button_url=link_button_url),
                                                  parse_mode='Markdown')
-            first_message_id = first_message['message_id']
-            first_message_chat_id = first_message['chat']['id']
+            first_message_id = first_message.message_id
+            first_message_chat_id = first_message.chat.id
             if link_button_name:
                 with utils.database.database as db:
                     db.execute(f"INSERT INTO event_data VALUES ({first_message_chat_id}, {first_message_id}, "
@@ -151,8 +151,8 @@ async def send_event(callback: aiogram.types.CallbackQuery, state: aiogram.dispa
                                                         link_button_name=link_button_name,
                                                         link_button_url=link_button_url),
                                                     parse_mode='Markdown')
-            second_message_id = second_message['message_id']
-            second_message_chat_id = second_message['chat']['id']
+            second_message_id = second_message.message_id
+            second_message_chat_id = second_message.chat.id
             if link_button_name:
                 with utils.database.database as db:
                     db.execute(f"INSERT INTO event_data VALUES ({second_message_chat_id}, {second_message_id}, "
