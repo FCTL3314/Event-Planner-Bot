@@ -12,7 +12,7 @@ async def statistics_command(message: aiogram.types.Message, state: aiogram.disp
     channels_numbers_dict = dict()
     for i, data in enumerate(events, 1):
         result += f'{i}. {data[2]}({data[3]})\n'
-        channels_numbers_dict[i] = data[0], data[1], data[3]
+        channels_numbers_dict[i] = data[0], data[1], data[2], data[3]
     async with state.proxy() as data:
         data['channels_numbers_dict'] = channels_numbers_dict
     await states.statistic_command_states.CreateStatisticsStates.get_channels.set()
@@ -36,13 +36,15 @@ async def get_channel_to_show(message: aiogram.types.Message, state: aiogram.dis
             users_who_vote_think = db.execute(query=f"SELECT user_id, first_name, last_name FROM event_votes WHERE "
                                                     f"(message_id = {event_data[0]}) and (chat_id = {event_data[1]}) "
                                                     f"and (vote = 'think')")
+            await message.answer(text=f"*Мероприятие:* {event_data[2]} | {event_data[3]}", parse_mode='Markdown')
             await message.answer(text=await utils.misc.create_users_vote_text(users=users_who_vote_fire, emoji='🔥'),
                                  parse_mode='HTML')
             await message.answer(text=await utils.misc.create_users_vote_text(users=users_who_vote_think, emoji='🤔'),
                                  parse_mode='HTML')
             await state.finish()
     else:
-        await message.answer(text='⚠️*Введённое вами число некорректно.*', parse_mode='Markdown')
+        await message.answer(text='⚠️*Введённое вами число некорректно. Отправьте номер события снова.*',
+                             parse_mode='Markdown')
 
 
 def register_statistics_command(dp: aiogram.Dispatcher):
