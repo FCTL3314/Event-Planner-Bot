@@ -12,8 +12,8 @@ from loader import bot
 async def create_event_command(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
     if message.from_user.id in BOT_ADMIN_IDS:
         with utils.database.database as db:
-            channels = db.get_channels()
-            groups = db.get_groups()
+            channels = db.execute(f'SELECT * FROM channels')
+            groups = db.execute(f'SELECT * FROM groups')
         if channels or groups:
             channels_text = await utils.misc.create_channels_text(channels=channels, groups=groups)
             channels_ids_dict = await utils.misc.get_channels_indexes(channels=channels, groups=groups)
