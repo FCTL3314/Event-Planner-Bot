@@ -21,3 +21,10 @@ async def get_channels_indexes(channels: List[tuple], groups: List[tuple]):
         for i, group in enumerate(groups, len(channels) + 1):
             channels_indexes[str(i)] = group[0]
     return channels_indexes
+
+
+async def create_users_vote_text(users, emoji):
+    result = f'<b>Пользователи которые нажали</b> {emoji}:\n'
+    for i, data in enumerate(users, 1):
+        result += f'{i}. <a href="tg://user?id={data[0]}">{data[1]} {data[2]}</a>\n'
+    return result

@@ -36,20 +36,13 @@ async def get_channel_to_show(message: aiogram.types.Message, state: aiogram.dis
             users_who_vote_think = db.execute(query=f"SELECT user_id, first_name, last_name FROM event_votes WHERE "
                                                     f"(message_id = {event_data[0]}) and (chat_id = {event_data[1]}) "
                                                     f"and (vote = 'think')")
-            await message.answer(text=await create_users_vote_text(users=users_who_vote_fire, emoji='🔥'),
+            await message.answer(text=await utils.misc.create_users_vote_text(users=users_who_vote_fire, emoji='🔥'),
                                  parse_mode='HTML')
-            await message.answer(text=await create_users_vote_text(users=users_who_vote_think, emoji='🤔'),
+            await message.answer(text=await utils.misc.create_users_vote_text(users=users_who_vote_think, emoji='🤔'),
                                  parse_mode='HTML')
             await state.finish()
     else:
         await message.answer(text='⚠️*Введённое вами число некорректно.*', parse_mode='Markdown')
-
-
-async def create_users_vote_text(users, emoji):
-    result = f'<b>Пользователи которые нажали</b> {emoji}:\n'
-    for i, data in enumerate(users, 1):
-        result += f'{i}. <a href="tg://user?id={data[0]}">{data[1]} {data[2]}</a>\n'
-    return result
 
 
 def register_statistics_command(dp: aiogram.Dispatcher):
