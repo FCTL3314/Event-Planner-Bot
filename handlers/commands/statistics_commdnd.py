@@ -14,9 +14,6 @@ async def statistics_command(message: aiogram.types.Message, state: aiogram.disp
         channels_ids_dict[i] = data[0], data[1]
     async with state.proxy() as data:
         data['channels_ids_dict'] = channels_ids_dict
-    # result += f'<a href="tg://user?id=761331499">F_C_T_L</a>'
-    # with utils.database.database as db:
-    #     votes = db.execute(query=f'SELECT DISTINCT (message_id), vote FROM event_votes')
     await states.statistic_command_states.CreateStatisticsStates.get_channels.set()
     await message.answer(text=f'<b> ℹ️Введите номер события по которому нужно отобразить статистику:</b>\n{result}'
                               f'<b> Напишите /cancel что бы отменить выбор события.</b>',
@@ -33,15 +30,23 @@ async def get_channel_to_show(message: aiogram.types.Message, state: aiogram.dis
         with utils.database.database as db:
             users_who_vote_like = db.execute(query=f"SELECT user_id FROM event_votes WHERE "
                                                    f"(message_id = {channel[0]}) and (vote = 'like')")
-            await message.answer(text=await create_users_who_vote_like_text(users=users_who_vote_like),
+            users_who_vote_record = db.execute(query=f"SELECT user_id FROM event_votes WHERE "
+                                                     f"(message_id = {channel[0]}) and (vote = 'record')")
+            users_who_vote_think = db.execute(query=f"SELECT user_id FROM event_votes WHERE "
+                                                    f"(message_id = {channel[0]}) and (vote = 'think')")
+            await message.answer(text=await create_users_vote_text(users=users_who_vote_like, emoji='👍🏼'),
+                                 parse_mode='HTML')
+            await message.answer(text=await create_users_vote_text(users=users_who_vote_record, emoji='💫'),
+                                 parse_mode='HTML')
+            await message.answer(text=await create_users_vote_text(users=users_who_vote_think, emoji='💤'),
                                  parse_mode='HTML')
             await state.finish()
     else:
         await message.answer(text='⚠️*Введённое вами число некорректно.*', parse_mode='Markdown')
 
 
-async def create_users_who_vote_like_text(users):
-    result = '<b>Пользователи которые нажали</b> 👍🏼:\n'
+async def create_users_vote_text(users, emoji):
+    result = f'<b>Пользователи которые нажали</b> {emoji}:\n'
     for i, user_id in enumerate(users, 1):
         result += f'{i}. <a href="tg://user?id={user_id[0]}">F_C_T_L</a>\n'
     return result
