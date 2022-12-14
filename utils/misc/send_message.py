@@ -6,7 +6,8 @@ async def send_unable_execute_stop_command_message(message: aiogram.types.Messag
     await message.answer(text="❕Вам нечего отменять.")
 
 
-async def send_preview_of_event(message: aiogram.types.Message, event_picture_id, event_name, event_description):
+async def send_preview_of_event(message: aiogram.types.Message, event_picture_id: str, event_name: str,
+                                event_description: str):
     if event_picture_id:
         await message.answer_photo(photo=event_picture_id, caption=f"*{event_name}*\n{event_description}",
                                    reply_markup=keyboards.inline.send_event.send_event_keyboard(),
