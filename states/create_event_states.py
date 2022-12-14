@@ -6,5 +6,6 @@ class CreateEventStates(StatesGroup):
     get_event_picture = State()
     get_event_description = State()
     get_vote_limit = State()
+    get_link_button_name_and_url = State()
     get_channels_to_send = State()
     send_event = State()
