@@ -3,6 +3,7 @@ import filters
 import keyboards
 import states
 import utils
+import validators
 
 from data.config import BOT_ADMIN_IDS
 from loader import bot
@@ -19,19 +20,20 @@ async def create_event_command(message: aiogram.types.Message, state: aiogram.di
             async with state.proxy() as data:
                 data['channels_text'] = channels_text
                 data['channels_ids_dict'] = channels_ids_dict
-            await message.answer(text='ℹВы находитесь в режиме создания события. '
-                                      'Для того что бы выйти используйте команду /cancel.')
-            await message.answer(text='❕*Отправьте название события.*', parse_mode='Markdown')
+            await message.answer(text='ℹВы находитесь в режиме создания мероприятия. '
+                                      'Для того что бы отменить создание, используйте команду /cancel.')
+            await message.answer(text='❕*Отправьте название мероприятия.*', parse_mode='Markdown')
             await states.create_event_states.CreateEventStates.get_event_name.set()
         else:
-            await message.answer(text='⚠️*Для начала добавьте бота в канал.*', parse_mode='Markdown')
+            await message.answer(text='⚠️*Для того, что бы создать мероприятие, бот должен быть хотя бы в '
+                                      'одном канале.*', parse_mode='Markdown')
 
 
 async def get_event_name(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
     event_name = message.text.replace("_", "\\_").replace("*", "\\*").replace("[", "\\[").replace("`", "\\`")
     async with state.proxy() as data:
         data['event_name'] = event_name
-    await message.answer(text='❕*Отправьте сжатое изображение события, либо нажмите на кнопку \"Без изображения\".*',
+    await message.answer(text='❕*Отправьте сжатое изображение мероприятия, либо нажмите на кнопку \"Без изображения\".*',
                          reply_markup=keyboards.inline.without_photo.without_photo_keyboard(), parse_mode='Markdown')
     await states.create_event_states.CreateEventStates.next()
 
@@ -40,8 +42,8 @@ async def get_event_picture(message: aiogram.types.Message, state: aiogram.dispa
     event_picture_id = message.photo[0]["file_id"]
     async with state.proxy() as data:
         data['event_picture_id'] = event_picture_id
-    await message.answer(text='✅*Изображение события получено и сохранено.\n*', parse_mode='Markdown')
-    await message.answer(text='❕*Отправьте описание события.*', parse_mode='Markdown')
+    await message.answer(text='✅*Изображение мероприятия получено и сохранено.\n*', parse_mode='Markdown')
+    await message.answer(text='❕*Отправьте описание мероприятия.*', parse_mode='Markdown')
     await states.create_event_states.CreateEventStates.next()
 
 
@@ -49,7 +51,7 @@ async def get_event_description(message: aiogram.types.Message, state: aiogram.d
     event_description = message.text.replace("_", "\\_").replace("*", "\\*").replace("[", "\\[").replace("`", "\\`")
     async with state.proxy() as data:
         data['event_description'] = event_description
-    await message.answer(text=f'❕Отправьте лимит голосов.', parse_mode='Markdown')
+    await message.answer(text=f'❕*Отправьте лимит для кнопки 🔥.*', parse_mode='Markdown')
     await states.create_event_states.CreateEventStates.next()
 
 
@@ -58,25 +60,26 @@ async def get_vote_limit(message: aiogram.types.Message, state: aiogram.dispatch
     if vote_limit.isdigit():
         async with state.proxy() as data:
             data['vote_limit'] = vote_limit
-        await message.answer(text=f'❕*Отправьте название кнопки-ссылки.*', parse_mode='Markdown',
+        await message.answer(text=f'❕*Отправьте название кнопки-ссылки, либо нажмите на кнопку \"Без кнопки-ссылки\"*',
+                             parse_mode='Markdown',
                              reply_markup=keyboards.inline.withput_link_button.without_photo_keyboard(),
                              disable_web_page_preview=True)
         await states.create_event_states.CreateEventStates.next()
     else:
-        await message.answer(text='⚠️*Введённые вами данные - не число.*', parse_mode='Markdown')
+        await message.answer(text='⚠️*Лимит должен быть числом. Отправьте лимит снова.*', parse_mode='Markdown')
 
 
 async def get_link_button_name(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
-    text = message.text
+    link_button_name = message.text
     async with state.proxy() as data:
-        data['link_button_name'] = text
-    await message.answer(text=f'❕*Отправьте ссылку для этой кнопки.*', parse_mode='Markdown')
+        data['link_button_name'] = link_button_name
+    await message.answer(text=f'❕*Отправьте ссылку для кнопки \"{link_button_name}\"*', parse_mode='Markdown')
     await states.create_event_states.CreateEventStates.next()
 
 
 async def get_link_button_url(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
     text = message.text
-    if 'http' in text:
+    if validators.url(text):
         async with state.proxy() as data:
             data['link_button_url'] = text
             channels_text = data['channels_text']
@@ -84,7 +87,7 @@ async def get_link_button_url(message: aiogram.types.Message, state: aiogram.dis
                                   f'в которые необходимо отправить событие:*\n{channels_text}', parse_mode='Markdown')
         await states.create_event_states.CreateEventStates.next()
     else:
-        await message.answer(text='⚠️*Ссылка должна содержать в себе http..*', parse_mode='Markdown')
+        await message.answer(text='⚠️*Ссылка некорректна. Отправьте ссылку заново.*', parse_mode='Markdown')
 
 
 async def get_channels_to_send(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
@@ -105,7 +108,7 @@ async def get_channels_to_send(message: aiogram.types.Message, state: aiogram.di
                                                             event_description=event_description)
         await states.create_event_states.CreateEventStates.next()
     else:
-        await message.answer(text='⚠️*Введённые вами номера групп не корректны, попробуйте снова.*',
+        await message.answer(text='⚠️*Введённые вами номера групп некорректны. Отправьте номера групп заново.*',
                              parse_mode='Markdown')
 
 
