@@ -48,6 +48,12 @@ class SQLiteDatabase:
         chat_id bigint,
         message_id bigint,
         event_name text,
+        likes_count int,
+        record_count int,
+        think_count int,
+        vote_limit int,
+        link_button_url text,
+        link_button_name text,
         creation_date datatime)""")
 
     def add_channel(self, channel_id, channel_name):
