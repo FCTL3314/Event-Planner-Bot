@@ -65,7 +65,7 @@ async def vote_buttons(callback: aiogram.types.CallbackQuery):
             db.execute(f'UPDATE event_data SET fire_button_count = {fire_button_count - 1} '
                        f'WHERE (chat_id = {chat_id}) and (message_id = {message_id})')
             db.execute(f'DELETE FROM event_votes WHERE (user_id = {user_id}) AND (chat_id = {chat_id}) AND '
-                       f'(user_id = {user_id})')
+                       f'(message_id = {message_id})')
     elif vote == 'think' and not previous_user_vote:
         if link_button_name:
             await bot.edit_message_reply_markup(chat_id=chat_id, message_id=message_id,
@@ -103,7 +103,7 @@ async def vote_buttons(callback: aiogram.types.CallbackQuery):
             db.execute(f'UPDATE event_data SET think_button_count = {think_button_count - 1} '
                        f'WHERE (chat_id = {chat_id}) and (message_id = {message_id})')
             db.execute(f'DELETE FROM event_votes WHERE (user_id = {user_id}) AND (chat_id = {chat_id}) AND '
-                       f'(user_id = {user_id})')
+                       f'(message_id = {message_id})')
     elif vote == 'think' and previous_user_vote[0][0] == 'fire':
         if link_button_name:
             await bot.edit_message_reply_markup(chat_id=chat_id, message_id=message_id,
