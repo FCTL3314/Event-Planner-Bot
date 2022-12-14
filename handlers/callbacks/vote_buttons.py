@@ -26,9 +26,16 @@ async def vote_buttons(callback: aiogram.types.CallbackQuery):
         link_button_url = db.execute(f'SELECT link_button_url FROM event_data WHERE '
                                      f'(chat_id = {chat_id}) and (message_id = {message_id})')[0][0]
     if fire_button_count >= fire_button_limit:
-        await bot.edit_message_reply_markup(chat_id=chat_id, message_id=message_id,
-                                            reply_markup=keyboards.inline.vote_limit.vote_limit_keyboard(
-                                                limit=fire_button_limit))
+        if link_button_name:
+            await bot.edit_message_reply_markup(chat_id=chat_id, message_id=message_id,
+                                                reply_markup=keyboards.inline.vote_limit.vote_limit_keyboard(
+                                                    limit=fire_button_limit,
+                                                    link_button_name=link_button_name,
+                                                    link_button_url=link_button_url))
+        else:
+            await bot.edit_message_reply_markup(chat_id=chat_id, message_id=message_id,
+                                                reply_markup=keyboards.inline.vote_limit.vote_limit_keyboard(
+                                                    limit=fire_button_limit))
     elif vote == 'fire' and not previous_user_vote:
         if link_button_name:
             await bot.edit_message_reply_markup(chat_id=chat_id, message_id=message_id,
