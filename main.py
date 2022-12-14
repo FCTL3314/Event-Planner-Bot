@@ -13,6 +13,7 @@ from data.config import LOGGING_LEVEL, LOGGING_FILE_NAME, LOGGING_FILE_MODE, LOG
 
 handlers.callbacks.vote_buttons.register_vote_buttons_handler(dp=dp)
 handlers.callbacks.without_picture.register_without_picture(dp=dp)
+handlers.callbacks.without_link_button.register_without_link_button(dp=dp)
 handlers.callbacks.cancel_buttons.register_cancel_buttons_handlers(dp=dp)
 handlers.messages.bot_channel_actions.register_bot_added_to_channel_handlers(dp=dp)
 handlers.commands.cancel_command.register_cancel_command_handlers(dp=dp)
