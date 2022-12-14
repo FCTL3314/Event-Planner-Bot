@@ -13,7 +13,8 @@ async def vote_buttons(callback: aiogram.types.CallbackQuery):
     first_name = callback.from_user.first_name
     last_name = callback.from_user.last_name
     with utils.database.database as db:
-        previous_user_vote = db.get_vote(chat_id=chat_id, message_id=message_id, user_id=user_id)
+        previous_user_vote = db.execute(f'SELECT vote FROM event_votes WHERE (message_id = {message_id}) '
+                                        f'AND (user_id = {user_id}) AND (chat_id = {chat_id})')
         fire_button_count = db.execute(f'SELECT fire_button_count FROM event_data WHERE '
                                        f'(chat_id = {chat_id}) and (message_id = {message_id})')[0][0]
         think_button_count = db.execute(f'SELECT think_button_count FROM event_data WHERE '
@@ -47,7 +48,7 @@ async def vote_buttons(callback: aiogram.types.CallbackQuery):
                        f'WHERE (chat_id = {chat_id}) and (message_id = {message_id})')
             db.execute(f"INSERT INTO event_votes VALUES ({chat_id}, {message_id}, {user_id}, '{first_name}', "
                        f"'{last_name}', 'fire')")
-    elif vote == 'fire' and previous_user_vote[0] == 'fire':
+    elif vote == 'fire' and previous_user_vote[0][0] == 'fire':
         if link_button_name:
             await bot.edit_message_reply_markup(chat_id=chat_id, message_id=message_id,
                                                 reply_markup=keyboards.inline.vote.vote_keyboard(
@@ -84,7 +85,7 @@ async def vote_buttons(callback: aiogram.types.CallbackQuery):
                        f'WHERE (chat_id = {chat_id}) and (message_id = {message_id})')
             db.execute(f"INSERT INTO event_votes VALUES ({chat_id}, {message_id}, {user_id}, '{first_name}', "
                        f"'{last_name}', 'think')")
-    elif vote == 'think' and previous_user_vote[0] == 'think':
+    elif vote == 'think' and previous_user_vote[0][0] == 'think':
         if link_button_name:
             await bot.edit_message_reply_markup(chat_id=chat_id, message_id=message_id,
                                                 reply_markup=keyboards.inline.vote.vote_keyboard(
@@ -103,7 +104,7 @@ async def vote_buttons(callback: aiogram.types.CallbackQuery):
                        f'WHERE (chat_id = {chat_id}) and (message_id = {message_id})')
             db.execute(f'DELETE FROM event_votes WHERE (user_id = {user_id}) AND (chat_id = {chat_id}) AND '
                        f'(user_id = {user_id})')
-    elif vote == 'think' and previous_user_vote[0] == 'fire':
+    elif vote == 'think' and previous_user_vote[0][0] == 'fire':
         if link_button_name:
             await bot.edit_message_reply_markup(chat_id=chat_id, message_id=message_id,
                                                 reply_markup=keyboards.inline.vote.vote_keyboard(
@@ -124,7 +125,7 @@ async def vote_buttons(callback: aiogram.types.CallbackQuery):
                        f'WHERE (chat_id = {chat_id}) and (message_id = {message_id})')
             db.execute(f"UPDATE event_votes SET vote = 'think' WHERE (chat_id = {chat_id}) AND "
                        f"(message_id = {message_id}) AND (user_id = {user_id})")
-    elif vote == 'fire' and previous_user_vote[0] == 'think':
+    elif vote == 'fire' and previous_user_vote[0][0] == 'think':
         if link_button_name:
             await bot.edit_message_reply_markup(chat_id=chat_id, message_id=message_id,
                                                 reply_markup=keyboards.inline.vote.vote_keyboard(
