@@ -32,7 +32,7 @@ async def get_event_name(message: aiogram.types.Message, state: aiogram.dispatch
     async with state.proxy() as data:
         data['event_name'] = event_name
     await message.answer(text='❕*Отправьте сжатое изображение события, либо нажмите на кнопку \"Без изображения\".*',
-                         reply_markup=keyboards.inline.withput_photo_keyboard.without_photo_keyboard(),
+                         reply_markup=keyboards.inline.without_photo.without_photo_keyboard(),
                          parse_mode='Markdown')
     await states.create_event_states.CreateEventStates.next()
 
@@ -59,12 +59,27 @@ async def get_vote_limit(message: aiogram.types.Message, state: aiogram.dispatch
     if vote_limit.isdigit():
         async with state.proxy() as data:
             data['vote_limit'] = vote_limit
+        await message.answer(text=f'❕*Отправьте название кнопки-ссылки, затем пробел и ссылку.\nПример:\n*'
+                                  f'YouTube https://www.youtube.com/', parse_mode='Markdown',
+                             reply_markup=keyboards.inline.withput_link_button.without_photo_keyboard(),
+                             disable_web_page_preview=True)
+        await states.create_event_states.CreateEventStates.next()
+    else:
+        await message.answer(text='⚠️*Введённые вами данные - не число.*', parse_mode='Markdown')
+
+
+async def get_link_button_name_and_url(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
+    text = message.text
+    if ' ' in text and len(text.split(' ')) == 2:
+        async with state.proxy() as data:
+            data['link_button_name'] = text.split(' ')[0]
+            data['link_button_url'] = text.split(' ')[1]
             channels_text = data['channels_text']
         await message.answer(text=f'❕*Отправьте номер канала, либо укажите через пробел номера каналов, '
                                   f'в которые необходимо отправить событие:*\n{channels_text}', parse_mode='Markdown')
         await states.create_event_states.CreateEventStates.next()
     else:
-        await message.answer(text='⚠️*Введённые вами данные - не число.*', parse_mode='Markdown')
+        await message.answer(text='⚠️*Введённые вами данные не корректны.*', parse_mode='Markdown')
 
 
 async def get_channels_to_send(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
@@ -72,7 +87,7 @@ async def get_channels_to_send(message: aiogram.types.Message, state: aiogram.di
         channels_ids_dict = data['channels_ids_dict']
     if await filters.is_text_consists_of_digits.is_text_consists_of_digits(
             text=message.text) and await filters.is_channel_numbers_correct.is_channel_numbers_correct(
-        text=message.text, channels_ids_dict=channels_ids_dict):
+            text=message.text, channels_ids_dict=channels_ids_dict):
         channels_indexes = message.text.split(' ')
         await message.answer(text='✉️*Предпросмотр:*', parse_mode='Markdown')
         async with state.proxy() as data:
@@ -97,33 +112,39 @@ async def send_event(callback: aiogram.types.CallbackQuery, state: aiogram.dispa
         vote_limit = int(data['vote_limit'])
         channels_indexes = data['channels_indexes']
         channels_ids_dict = data['channels_ids_dict']
+        link_button_name = data['link_button_name']
+        link_button_url = data['link_button_url']
     for number in channels_indexes:
         if event_picture_id:
             first_message = await bot.send_photo(chat_id=channels_ids_dict[number], photo=event_picture_id,
                                                  caption=f"*{event_name}*\n{event_description}",
                                                  reply_markup=keyboards.inline.vote.vote_keyboard(
-                                                     amount_of_likes=0,
-                                                     amount_of_dislikes=0,
-                                                     vote_limit=vote_limit),
+                                                     likes_count=0,
+                                                     record_count=0,
+                                                     think_count=0,
+                                                     link_button_name=link_button_name,
+                                                     link_button_url=link_button_url),
                                                  parse_mode='Markdown')
             first_message_id = first_message['message_id']
             first_message_chat_id = first_message['chat']['id']
             with utils.database.database as db:
                 db.execute(f"INSERT INTO event_data VALUES ({first_message_chat_id}, {first_message_id}, "
-                           f"'{event_name}', current_date)")
+                           f"'{event_name}', 0, 0, 0, {vote_limit}, null, null, current_date)")
         else:
             second_message = await bot.send_message(chat_id=channels_ids_dict[number],
                                                     text=f"*{event_name}*\n{event_description}",
                                                     reply_markup=keyboards.inline.vote.vote_keyboard(
-                                                        amount_of_likes=0,
-                                                        amount_of_dislikes=0,
-                                                        vote_limit=vote_limit),
+                                                        likes_count=0,
+                                                        record_count=0,
+                                                        think_count=0,
+                                                        link_button_name=link_button_name,
+                                                        link_button_url=link_button_url),
                                                     parse_mode='Markdown')
             second_message_id = second_message['message_id']
             second_message_chat_id = second_message['chat']['id']
             with utils.database.database as db:
                 db.execute(f"INSERT INTO event_data VALUES ({second_message_chat_id}, {second_message_id}, "
-                           f"'{event_name}', current_date)")
+                           f"'{event_name}', 0, 0, 0, {vote_limit}, null, null, current_date)")
     await bot.send_message(chat_id=callback.from_user.id, text='✅Событие успешно отправлено!')
     await state.finish()
 
@@ -138,6 +159,8 @@ def register_create_event_command_handlers(dp: aiogram.Dispatcher):
                                 state=states.create_event_states.CreateEventStates.get_event_description)
     dp.register_message_handler(callback=get_vote_limit, content_types=['text'],
                                 state=states.create_event_states.CreateEventStates.get_vote_limit)
+    dp.register_message_handler(callback=get_link_button_name_and_url, content_types=['text'],
+                                state=states.create_event_states.CreateEventStates.get_link_button_name_and_url)
     dp.register_message_handler(callback=get_channels_to_send, content_types=['text'],
                                 state=states.create_event_states.CreateEventStates.get_channels_to_send)
     dp.register_callback_query_handler(callback=send_event, text='send_event',
