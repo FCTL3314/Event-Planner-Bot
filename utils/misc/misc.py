@@ -3,7 +3,7 @@ import utils
 from typing import List
 
 
-async def create_channels_text(channels: List[tuple], groups: List[tuple]):
+async def create_channels_text(channels: List[tuple], groups: List[tuple]) -> str:
     result = ''
     if channels:
         for i, channel in enumerate(channels, 1):
@@ -14,7 +14,7 @@ async def create_channels_text(channels: List[tuple], groups: List[tuple]):
     return result
 
 
-async def get_channels_indexes(channels: List[tuple], groups: List[tuple]):
+async def get_channels_indexes(channels: List[tuple], groups: List[tuple]) -> dict:
     channels_indexes = dict()
     if channels:
         for i, channel in enumerate(channels, 1):
@@ -25,14 +25,15 @@ async def get_channels_indexes(channels: List[tuple], groups: List[tuple]):
     return channels_indexes
 
 
-async def create_users_vote_text(users, emoji):
+async def create_users_vote_text(users, emoji) -> str:
     result = f'<b>Пользователи которые нажали</b> {emoji}:\n'
     for i, data in enumerate(users, 1):
         result += f'{i}. <a href="tg://user?id={data[0]}">{data[1]} {data[2]}</a>\n'
     return result
 
 
-async def insert_event_into_db(chat_id, message_id, event_name, vote_limit, link_button_url, link_button_name):
+async def insert_event_into_db(chat_id: str, message_id: str, event_name: str, vote_limit: int, link_button_url: str,
+                               link_button_name: str):
     if link_button_name:
         with utils.database.database as db:
             db.execute(f"INSERT INTO event_data VALUES ({chat_id}, {message_id}, "
