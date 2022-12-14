@@ -24,16 +24,15 @@ async def create_event_command(message: aiogram.types.Message, state: aiogram.di
             await message.answer(text='❕*Отправьте название события.*', parse_mode='Markdown')
             await states.create_event_states.CreateEventStates.get_event_name.set()
         else:
-            await message.answer(text='⚠️Для начала добавьте бота в канал.')
+            await message.answer(text='⚠️*Для начала добавьте бота в канал.*', parse_mode='Markdown')
 
 
 async def get_event_name(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
-    event_name = message.text
+    event_name = message.text.replace("_", "\\_").replace("*", "\\*").replace("[", "\\[").replace("`", "\\`")
     async with state.proxy() as data:
         data['event_name'] = event_name
     await message.answer(text='❕*Отправьте сжатое изображение события, либо нажмите на кнопку \"Без изображения\".*',
-                         reply_markup=keyboards.inline.without_photo.without_photo_keyboard(),
-                         parse_mode='Markdown')
+                         reply_markup=keyboards.inline.without_photo.without_photo_keyboard(), parse_mode='Markdown')
     await states.create_event_states.CreateEventStates.next()
 
 
@@ -47,7 +46,7 @@ async def get_event_picture(message: aiogram.types.Message, state: aiogram.dispa
 
 
 async def get_event_description(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
-    event_description = message.text
+    event_description = message.text.replace("_", "\\_").replace("*", "\\*").replace("[", "\\[").replace("`", "\\`")
     async with state.proxy() as data:
         data['event_description'] = event_description
     await message.answer(text=f'❕Отправьте лимит голосов.', parse_mode='Markdown')
@@ -59,8 +58,7 @@ async def get_vote_limit(message: aiogram.types.Message, state: aiogram.dispatch
     if vote_limit.isdigit():
         async with state.proxy() as data:
             data['vote_limit'] = vote_limit
-        await message.answer(text=f'❕*Отправьте название кнопки-ссылки, затем пробел и ссылку.\nПример:\n*'
-                                  f'YouTube https://www.youtube.com/', parse_mode='Markdown',
+        await message.answer(text=f'❕*Отправьте название кнопки-ссылки.*', parse_mode='Markdown',
                              reply_markup=keyboards.inline.withput_link_button.without_photo_keyboard(),
                              disable_web_page_preview=True)
         await states.create_event_states.CreateEventStates.next()
@@ -68,18 +66,26 @@ async def get_vote_limit(message: aiogram.types.Message, state: aiogram.dispatch
         await message.answer(text='⚠️*Введённые вами данные - не число.*', parse_mode='Markdown')
 
 
-async def get_link_button_name_and_url(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
+async def get_link_button_name(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
     text = message.text
-    if ' ' in text and len(text.split(' ')) == 2:
+    async with state.proxy() as data:
+        data['link_button_name'] = text
+        channels_text = data['channels_text']
+    await message.answer(text=f'❕*Отправьте ссылку этой кнопки.*\n{channels_text}', parse_mode='Markdown')
+    await states.create_event_states.CreateEventStates.next()
+
+
+async def get_link_button_url(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
+    text = message.text
+    if 'http' in text:
         async with state.proxy() as data:
-            data['link_button_name'] = text.split(' ')[0]
-            data['link_button_url'] = text.split(' ')[1]
+            data['link_button_url'] = text
             channels_text = data['channels_text']
         await message.answer(text=f'❕*Отправьте номер канала, либо укажите через пробел номера каналов, '
                                   f'в которые необходимо отправить событие:*\n{channels_text}', parse_mode='Markdown')
         await states.create_event_states.CreateEventStates.next()
     else:
-        await message.answer(text='⚠️*Введённые вами данные не корректны.*', parse_mode='Markdown')
+        await message.answer(text='⚠️*Ссылка должна содержать в себе http..*', parse_mode='Markdown')
 
 
 async def get_channels_to_send(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
@@ -159,8 +165,10 @@ def register_create_event_command_handlers(dp: aiogram.Dispatcher):
                                 state=states.create_event_states.CreateEventStates.get_event_description)
     dp.register_message_handler(callback=get_vote_limit, content_types=['text'],
                                 state=states.create_event_states.CreateEventStates.get_vote_limit)
-    dp.register_message_handler(callback=get_link_button_name_and_url, content_types=['text'],
-                                state=states.create_event_states.CreateEventStates.get_link_button_name_and_url)
+    dp.register_message_handler(callback=get_link_button_name, content_types=['text'],
+                                state=states.create_event_states.CreateEventStates.get_link_button_name)
+    dp.register_message_handler(callback=get_link_button_url, content_types=['text'],
+                                state=states.create_event_states.CreateEventStates.get_link_button_url)
     dp.register_message_handler(callback=get_channels_to_send, content_types=['text'],
                                 state=states.create_event_states.CreateEventStates.get_channels_to_send)
     dp.register_callback_query_handler(callback=send_event, text='send_event',
