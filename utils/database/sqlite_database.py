@@ -57,20 +57,6 @@ class SQLiteDatabase:
         link_button_name text,
         creation_date datatime)""")
 
-    def add_channel(self, channel_id, channel_name):
-        self.__cur.execute(f"""
-        INSERT INTO channels (channel_id, channel_name) VALUES ({channel_id}, '{channel_name}')""")
-
-    def remove_channel(self, channel_id):
-        self.__cur.execute(f"""DELETE FROM channels WHERE channel_id = {channel_id}""")
-
-    def add_group(self, group_id, group_name):
-        self.__cur.execute(f"""
-                INSERT INTO groups (group_id, group_name) VALUES ({group_id}, '{group_name}')""")
-
-    def remove_group(self, group_id):
-        self.__cur.execute(f"""DELETE FROM groups WHERE group_id = {group_id}""")
-
     def get_channels(self):
         self.__cur.execute(f"""SELECT * FROM channels""")
         return self.__cur.fetchall()
@@ -79,19 +65,3 @@ class SQLiteDatabase:
         self.__cur.execute(f"""SELECT * FROM groups""")
         return self.__cur.fetchall()
 
-    def get_vote(self, chat_id, message_id, user_id):
-        self.__cur.execute(f"""
-            SELECT vote FROM event_votes WHERE (message_id = {message_id}) and (user_id = {user_id} and 
-            (chat_id = {chat_id}))
-            """)
-        return self.__cur.fetchone()
-
-    def add_vote(self, chat_id, message_id, user_id, vote, first_name, last_name):
-        self.__cur.execute(f"""
-            INSERT INTO event_votes VALUES ({chat_id}, {message_id}, {user_id}, '{first_name}', '{last_name}', '{vote}')
-            """)
-
-    def remove_vote(self, chat_id, message_id, user_id):
-        self.__cur.execute(f"""
-        DELETE FROM event_votes WHERE (message_id = {message_id}) and (user_id = {user_id}) and  (chat_id = {chat_id})
-        """)
