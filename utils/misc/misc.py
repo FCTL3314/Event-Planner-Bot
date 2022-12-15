@@ -33,7 +33,7 @@ async def create_users_vote_text(users, emoji) -> str:
         else:
             result += f'{i}. <a href="tg://user?id={data[0]}">{data[1]}</a>\n'
     if not result:
-        result = '❕За этот вариант ещё никто не проголосовал.'
+        result = '● За этот вариант ещё никто не проголосовал.'
     return f'<b>Пользователи которые нажали</b> {emoji}:\n{result}'
 
 
@@ -41,10 +41,10 @@ async def insert_event_into_db(chat_id: str, message_id: str, event_name: str, v
                                link_button_name: str):
     if link_button_name:
         with utils.database.database as db:
-            db.execute(f"INSERT INTO event_data VALUES ({chat_id}, {message_id}, "
+            db.execute(f"INSERT INTO events VALUES ({chat_id}, {message_id}, "
                        f"'{event_name}', 0, 0, {vote_limit}, '{link_button_url}', '{link_button_name}',"
                        f"current_date)")
     else:
         with utils.database.database as db:
-            db.execute(f"INSERT INTO event_data VALUES ({chat_id}, {message_id}, "
+            db.execute(f"INSERT INTO events VALUES ({chat_id}, {message_id}, "
                        f"'{event_name}', 0, 0, {vote_limit}, null, null, current_date)")

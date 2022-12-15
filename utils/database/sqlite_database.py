@@ -39,14 +39,14 @@ class SQLiteDatabase:
         self.__cur.execute("""CREATE TABLE IF NOT EXISTS groups (
         group_id PRIMARY KEY,
         group_name text)""")
-        self.__cur.execute("""CREATE TABLE IF NOT EXISTS event_votes (
+        self.__cur.execute("""CREATE TABLE IF NOT EXISTS user_votes (
         chat_id bigint,
         message_id bigint,
         user_id bigint,
         first_name text,
         last_name text,
         vote varchar(16))""")
-        self.__cur.execute("""CREATE TABLE IF NOT EXISTS event_data (
+        self.__cur.execute("""CREATE TABLE IF NOT EXISTS events (
         chat_id bigint,
         message_id bigint,
         event_name text,
