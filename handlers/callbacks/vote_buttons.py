@@ -153,6 +153,10 @@ async def vote_buttons(callback: aiogram.types.CallbackQuery):
                        f'WHERE (chat_id = {chat_id}) and (message_id = {message_id})')
             db.execute(f"UPDATE event_votes SET vote = 'fire' WHERE (chat_id = {chat_id}) AND "
                        f"(message_id = {message_id}) AND (user_id = {user_id})")
+    if vote == 'fire':
+        await callback.answer(text='Вы нажали 🔥')
+    elif vote == 'think':
+        await callback.answer(text='Вы нажали 🤔')
 
 
 def register_vote_buttons_handler(dp: aiogram.Dispatcher):
