@@ -51,7 +51,7 @@ async def get_event_description(message: aiogram.types.Message, state: aiogram.d
     event_description = message.text.replace("_", "\\_").replace("*", "\\*").replace("[", "\\[").replace("`", "\\`")
     async with state.proxy() as data:
         data['event_description'] = event_description
-    await message.answer(text=f'❕*Отправьте лимит для кнопки 🔥.*', parse_mode='Markdown')
+    await message.answer(text=f'❕*Отправьте лимит для кнопки 🔥*', parse_mode='Markdown')
     await states.create_event_states.CreateEventStates.next()
 
 
