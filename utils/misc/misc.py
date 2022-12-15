@@ -28,7 +28,10 @@ async def get_channels_indexes(channels: List[tuple], groups: List[tuple]) -> di
 async def create_users_vote_text(users, emoji) -> str:
     result = f''
     for i, data in enumerate(users, 1):
-        result += f'{i}. <a href="tg://user?id={data[0]}">{data[1]} {data[2]}</a>\n'
+        if data[2] != 'None':
+            result += f'{i}. <a href="tg://user?id={data[0]}">{data[1]} {data[2]}</a>\n'
+        else:
+            result += f'{i}. <a href="tg://user?id={data[0]}">{data[1]}</a>\n'
     if not result:
         result = '❕За этот вариант ещё никто не проголосовал.'
     return f'<b>Пользователи которые нажали</b> {emoji}:\n{result}'
