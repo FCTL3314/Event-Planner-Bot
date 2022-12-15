@@ -33,8 +33,9 @@ async def get_event_name(message: aiogram.types.Message, state: aiogram.dispatch
     event_name = message.text.replace("_", "\\_").replace("*", "\\*").replace("[", "\\[").replace("`", "\\`")
     async with state.proxy() as data:
         data['event_name'] = event_name
-    await message.answer(text='❕*Отправьте сжатое изображение мероприятия, либо нажмите на кнопку \"Без изображения\".*',
-                         reply_markup=keyboards.inline.without_photo.without_photo_keyboard(), parse_mode='Markdown')
+    await message.answer(
+        text='❕*Отправьте сжатое изображение мероприятия, либо нажмите на кнопку \"Без изображения\".*',
+        reply_markup=keyboards.inline.without_photo.without_photo_keyboard(), parse_mode='Markdown')
     await states.create_event_states.CreateEventStates.next()
 
 
@@ -51,8 +52,28 @@ async def get_event_description(message: aiogram.types.Message, state: aiogram.d
     event_description = message.text.replace("_", "\\_").replace("*", "\\*").replace("[", "\\[").replace("`", "\\`")
     async with state.proxy() as data:
         data['event_description'] = event_description
-    await message.answer(text=f'❕*Отправьте лимит для кнопки 🔥*', parse_mode='Markdown')
-    await states.create_event_states.CreateEventStates.next()
+        event_picture_id = data['event_picture_id']
+        event_name = data['event_name']
+    event_name_plus_description_length = len(event_name) + len(event_description)
+    if event_picture_id and event_name_plus_description_length < 1024:
+        await message.answer(text=f'❕*Отправьте лимит для кнопки 🔥*', parse_mode='Markdown')
+        await states.create_event_states.CreateEventStates.next()
+    elif not event_picture_id and event_name_plus_description_length < 4096:
+        await message.answer(text=f'❕*Отправьте лимит для кнопки 🔥*', parse_mode='Markdown')
+        await states.create_event_states.CreateEventStates.next()
+    else:
+        if event_picture_id:
+            await message.answer(text=f'⚠️*Для того, что бы отправить мероприятие *с изображением*, сумма символов '
+                                      f'названия и описания должна быть меньше 1024. Ваше превышение - '
+                                      f'{event_name_plus_description_length - 1023}.*', parse_mode='Markdown')
+        else:
+            await message.answer(text=f'⚠️*Для того, что бы отправить мероприятие *без изображения*, '
+                                      f'сумма символов названия и описания должна быть меньше 4096. Ваше превышение '
+                                      f'- {event_name_plus_description_length - 4095}.*',
+                                 parse_mode='Markdown')
+        await message.answer(text='❗️*Создание события остановлено. Напишите /create_event что бы создать заново.*',
+                             parse_mode='Markdown')
+        await state.finish()
 
 
 async def get_vote_limit(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
@@ -84,7 +105,8 @@ async def get_link_button_url(message: aiogram.types.Message, state: aiogram.dis
             data['link_button_url'] = text
             channels_text = data['channels_text']
         await message.answer(text=f'❕*Отправьте номер канала, либо укажите через пробел номера каналов, '
-                                  f'в которые необходимо отправить мероприятие:*\n{channels_text}', parse_mode='Markdown')
+                                  f'в которые необходимо отправить мероприятие:*\n{channels_text}',
+                             parse_mode='Markdown')
         await states.create_event_states.CreateEventStates.next()
     else:
         await message.answer(text='⚠️*Ссылка некорректна. Отправьте ссылку заново.*', parse_mode='Markdown')
@@ -95,7 +117,7 @@ async def get_channels_to_send(message: aiogram.types.Message, state: aiogram.di
         channels_ids_dict = data['channels_ids_dict']
     if await filters.is_text_consists_of_digits.is_text_consists_of_digits(
             text=message.text) and await filters.is_channel_numbers_correct.is_channel_numbers_correct(
-            text=message.text, channels_ids_dict=channels_ids_dict):
+        text=message.text, channels_ids_dict=channels_ids_dict):
         channels_indexes = message.text.split(' ')
         await message.answer(text='✉️*Предпросмотр:*', parse_mode='Markdown')
         async with state.proxy() as data:
