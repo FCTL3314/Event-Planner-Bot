@@ -8,8 +8,8 @@ from loader import dp
 from data.config import LOGGING_LEVEL, LOGGING_FILE_NAME, LOGGING_FILE_MODE, LOGGING_FORMAT
 
 
-# logging.basicConfig(level=LOGGING_LEVEL, filename=f"{LOGGING_FILE_NAME}.log", filemode=LOGGING_FILE_MODE,
-#                     format=LOGGING_FORMAT)
+logging.basicConfig(level=LOGGING_LEVEL, filename=f"{LOGGING_FILE_NAME}.log", filemode=LOGGING_FILE_MODE,
+                    format=LOGGING_FORMAT)
 
 handlers.commands.start_command.register_start_command_handler(dp=dp)
 handlers.callbacks.vote_buttons.register_vote_buttons_handler(dp=dp)
