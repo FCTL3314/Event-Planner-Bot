@@ -2,7 +2,7 @@ import aiogram
 
 
 def vote_keyboard(fire_button_count: int, think_button_count: int, link_button_url: str = None,
-                  link_button_name: str = None)  -> aiogram.types.InlineKeyboardMarkup:
+                  link_button_name: str = None) -> aiogram.types.InlineKeyboardMarkup:
     inline_keyboard = aiogram.types.InlineKeyboardMarkup()
     like_button = aiogram.types.InlineKeyboardButton(text=f'🔥 {fire_button_count}',
                                                      callback_data=f'fire')
