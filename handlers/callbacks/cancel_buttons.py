@@ -5,7 +5,7 @@ from loader import bot
 
 
 async def cancel_buttons(callback: aiogram.types.CallbackQuery, state: aiogram.dispatcher.FSMContext):
-    await bot.send_message(chat_id=callback.from_user.id, text='ℹ️*Отправка события / опроса отменена.*',
+    await bot.send_message(chat_id=callback.from_user.id, text='ℹ️*Отправка мероприятия отменена.*',
                            parse_mode='Markdown')
     await state.finish()
 
