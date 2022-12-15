@@ -10,4 +10,4 @@ LOGGING_FILE_NAME = "log"
 LOGGING_FILE_MODE = 'w'
 LOGGING_FORMAT = '%(asctime)s - %(levelname)s - %(message)s'
 
-BOT_ADMIN_IDS = [761331499]
+BOT_ADMIN_IDS = (761331499,)
