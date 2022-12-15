@@ -9,22 +9,24 @@ async def statistics_command(message: aiogram.types.Message, state: aiogram.disp
     if message.from_user.id in BOT_ADMIN_IDS:
         with utils.database.database as db:
             events = db.execute(f'SELECT message_id, chat_id, event_name, creation_date '
-                                f'FROM event_data WHERE message_id IN '
-                                f'(SELECT message_id FROM (SELECT DISTINCT chat_id, message_id FROM event_data))')
+                                f'FROM events WHERE message_id IN '
+                                f'(SELECT message_id FROM (SELECT DISTINCT chat_id, message_id FROM events))')
         result = ''
         channels_numbers_dict = dict()
         for i, data in enumerate(events, 1):
-            result += f'{i}. {data[2]}({data[3]})\n'
+            result += f'<b>{i}.</b> {data[2]}({data[3]})\n'
             channels_numbers_dict[i] = data[0], data[1], data[2], data[3]
         if not result:
-            result = '❕Вы ещё не создали ни одного мероприятия.\n'
-        async with state.proxy() as data:
-            data['channels_numbers_dict'] = channels_numbers_dict
-        await states.statistic_command_states.CreateStatisticsStates.get_channels.set()
-        await message.answer(
-            text=f'<b> ℹ️Введите номер мероприятия по которому нужно отобразить статистику:</b>\n{result}'
-                 f'<b> Напишите /cancel что бы отменить выбор события.</b>',
-            parse_mode="HTML")
+            await message.answer(text='*ℹ️Вы ещё не создали ни одного мероприятия.*\n', parse_mode='Markdown')
+            await state.finish()
+        else:
+            async with state.proxy() as data:
+                data['channels_numbers_dict'] = channels_numbers_dict
+            await states.statistic_command_states.CreateStatisticsStates.get_channels.set()
+            await message.answer(
+                text=f'<b> ℹ️Отправьте номер мероприятия по которому нужно отобразить статистику:</b>\n{result}'
+                     f'<b> Напишите /cancel что бы отменить выбор мероприятия.</b>',
+                parse_mode="HTML")
 
 
 async def get_channel_to_show(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
@@ -36,10 +38,10 @@ async def get_channel_to_show(message: aiogram.types.Message, state: aiogram.dis
         async with state.proxy() as data:
             event_data = data['channels_numbers_dict'][int(channel_number)]
         with utils.database.database as db:
-            users_who_vote_fire = db.execute(query=f"SELECT user_id, first_name, last_name FROM event_votes WHERE "
+            users_who_vote_fire = db.execute(query=f"SELECT user_id, first_name, last_name FROM user_votes WHERE "
                                                    f"(message_id = {event_data[0]}) and (chat_id = {event_data[1]}) "
                                                    f"and (vote = 'fire')")
-            users_who_vote_think = db.execute(query=f"SELECT user_id, first_name, last_name FROM event_votes WHERE "
+            users_who_vote_think = db.execute(query=f"SELECT user_id, first_name, last_name FROM user_votes WHERE "
                                                     f"(message_id = {event_data[0]}) and (chat_id = {event_data[1]}) "
                                                     f"and (vote = 'think')")
             await message.answer(text=f"*Мероприятие:* {event_data[2]} | {event_data[3]}", parse_mode='Markdown')

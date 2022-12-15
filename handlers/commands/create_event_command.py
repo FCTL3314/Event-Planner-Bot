@@ -84,7 +84,7 @@ async def get_link_button_url(message: aiogram.types.Message, state: aiogram.dis
             data['link_button_url'] = text
             channels_text = data['channels_text']
         await message.answer(text=f'❕*Отправьте номер канала, либо укажите через пробел номера каналов, '
-                                  f'в которые необходимо отправить событие:*\n{channels_text}', parse_mode='Markdown')
+                                  f'в которые необходимо отправить мероприятие:*\n{channels_text}', parse_mode='Markdown')
         await states.create_event_states.CreateEventStates.next()
     else:
         await message.answer(text='⚠️*Ссылка некорректна. Отправьте ссылку заново.*', parse_mode='Markdown')
@@ -151,7 +151,7 @@ async def send_event(callback: aiogram.types.CallbackQuery, state: aiogram.dispa
             await utils.misc.insert_event_into_db(chat_id=second_message_chat_id, message_id=second_message_id,
                                                   event_name=event_name, vote_limit=vote_limit,
                                                   link_button_url=link_button_url, link_button_name=link_button_name)
-    await bot.send_message(chat_id=callback.from_user.id, text='✅Событие успешно отправлено!')
+    await bot.send_message(chat_id=callback.from_user.id, text='✅Мероприятие успешно отправлено!')
     await state.finish()
 
 
