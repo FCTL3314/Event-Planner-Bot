@@ -81,7 +81,7 @@ async def get_vote_limit(message: aiogram.types.Message, state: aiogram.dispatch
     if vote_limit.isdigit():
         async with state.proxy() as data:
             data['vote_limit'] = vote_limit
-        await message.answer(text=f'❕*Отправьте название кнопки-ссылки, либо нажмите на кнопку \"Без кнопки-ссылки\"*',
+        await message.answer(text=f'❕*Отправьте название кнопки-ссылки, либо нажмите на кнопку \"Без кнопки-ссылки\".*',
                              parse_mode='Markdown',
                              reply_markup=keyboards.inline.withput_link_button.without_photo_keyboard(),
                              disable_web_page_preview=True)
@@ -94,7 +94,7 @@ async def get_link_button_name(message: aiogram.types.Message, state: aiogram.di
     link_button_name = message.text
     async with state.proxy() as data:
         data['link_button_name'] = link_button_name
-    await message.answer(text=f'❕*Отправьте ссылку для кнопки \"{link_button_name}\"*', parse_mode='Markdown')
+    await message.answer(text=f'❕*Отправьте ссылку для кнопки \"{link_button_name}\".*', parse_mode='Markdown')
     await states.create_event_states.CreateEventStates.next()
 
 
