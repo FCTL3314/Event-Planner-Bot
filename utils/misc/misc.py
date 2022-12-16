@@ -25,16 +25,22 @@ async def get_channels_indexes(channels: List[tuple], groups: List[tuple]) -> di
     return channels_indexes
 
 
-async def create_users_vote_text(users, emoji) -> str:
-    result = f''
+async def create_users_vote_text(users: List[tuple]) -> list:
+    result = []
     for i, data in enumerate(users, 1):
         if data[2] != 'None':
-            result += f'{i}. <a href="tg://user?id={data[0]}">{data[1]} {data[2]}</a>\n'
+            if result and len(result[-1] + f'{i}. <a href="tg://user?id={data[0]}">{data[1]} {data[2]}</a>\n') < 4096:
+                result[-1] += f'{i}. <a href="tg://user?id={data[0]}">{data[1]} {data[2]}</a>\n'
+            else:
+                result.append(f'{i}. <a href="tg://user?id={data[0]}">{data[1]} {data[2]}</a>\n')
         else:
-            result += f'{i}. <a href="tg://user?id={data[0]}">{data[1]}</a>\n'
+            if result and len(result[-1] + f'{i}. <a href="tg://user?id={data[0]}">{data[1]}</a>\n') < 4096:
+                result[-1] += f'{i}. <a href="tg://user?id={data[0]}">{data[1]}</a>\n'
+            else:
+                result.append(f'{i}. <a href="tg://user?id={data[0]}">{data[1]}</a>\n')
     if not result:
-        result = '● За этот вариант ещё никто не проголосовал.'
-    return f'<b>Пользователи которые нажали</b> {emoji}:\n{result}'
+        result.append('● За этот вариант ещё никто не проголосовал.')
+    return result
 
 
 async def insert_event_into_db(chat_id: str, message_id: str, event_name: str, vote_limit: int, link_button_url: str,
