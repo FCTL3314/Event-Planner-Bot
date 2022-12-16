@@ -24,4 +24,5 @@ def register_cancel_command_handlers(dp: aiogram.Dispatcher):
                                        states.create_event_states.CreateEventStates.get_link_button_url,
                                        states.create_event_states.CreateEventStates.get_channels_to_send,
                                        states.create_event_states.CreateEventStates.send_event,
-                                       states.statistic_command_states.CreateStatisticsStates.get_channels])
+                                       states.statistic_command_states.CreateStatisticsStates.get_channels,
+                                       states.clear_command_states.ClearCommandStates.are_you_sure])
