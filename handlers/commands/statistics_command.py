@@ -30,6 +30,7 @@ async def statistics_command(message: aiogram.types.Message, state: aiogram.disp
 
 
 async def get_channel_to_show(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
+    user_id = message.from_user.id
     channel_number = message.text
     async with state.proxy() as data:
         channels_numbers_dict = data['channels_numbers_dict']
@@ -44,14 +45,26 @@ async def get_channel_to_show(message: aiogram.types.Message, state: aiogram.dis
             users_who_vote_think = db.execute(query=f"SELECT user_id, first_name, last_name FROM user_votes WHERE "
                                                     f"(message_id = {event_data[0]}) and (chat_id = {event_data[1]}) "
                                                     f"and (vote = 'think')")
-            await message.answer(text=f"*Мероприятие:* {event_data[2]} | {event_data[3]}", parse_mode='Markdown')
-            await message.answer(text=await utils.misc.create_users_vote_text(users=users_who_vote_fire, emoji='🔥'),
-                                 parse_mode='HTML')
-            await message.answer(text=await utils.misc.create_users_vote_text(users=users_who_vote_think, emoji='🤔'),
-                                 parse_mode='HTML')
-            await state.finish()
+        await message.answer(text=f"*ℹ️Мероприятие:* {event_data[2]} | {event_data[3]}", parse_mode='Markdown')
+
+        users_fire_votes_text_divided_by_4096_symbols = await utils.misc.create_users_vote_text(
+            users=users_who_vote_fire)
+
+        await message.answer(text='*Пользователи которые нажали* 🔥:', parse_mode='Markdown')
+
+        for votes_message in users_fire_votes_text_divided_by_4096_symbols:
+            await message.answer(text=votes_message, parse_mode='HTML')
+
+        users_think_votes_text_divided_by_4096_symbols = await utils.misc.create_users_vote_text(
+            users=users_who_vote_think)
+        await message.answer(text='*Пользователи которые нажали* 🤔:', parse_mode='Markdown')
+
+        for votes_message in users_think_votes_text_divided_by_4096_symbols:
+            await message.answer(text=votes_message, parse_mode='HTML')
+
+        await state.finish()
     else:
-        await message.answer(text='⚠️*Введённое вами число некорректно. Отправьте номер события снова.*',
+        await message.answer(text='⚠️*Введённое вами число некорректно. Отправьте номер мероприятия снова.*',
                              parse_mode='Markdown')
 
 
