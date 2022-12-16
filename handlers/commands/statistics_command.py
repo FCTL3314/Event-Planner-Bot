@@ -36,6 +36,7 @@ async def statistics_command(message: aiogram.types.Message, state: aiogram.disp
                 else:
                     result.append(f'● <b>{i}\nНазвание мероприятия:</b> {data[2]}\n<b>Дата создания:</b> '
                                   f'{data[3]}\n<b>Группа:</b> {group_tittle[0][0]}\n')
+                    channels_numbers_dict[i] = data[0], data[1], data[2], data[3]
         if not result:
             await message.answer(text='*ℹ️У вас нет активных мероприятий.*\n', parse_mode='Markdown')
             await state.finish()
