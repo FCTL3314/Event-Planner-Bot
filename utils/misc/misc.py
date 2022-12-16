@@ -44,7 +44,7 @@ async def create_users_vote_text(users: List[tuple]) -> list:
 
 
 async def insert_event_into_db(chat_id: str, message_id: str, event_name: str, vote_limit: int, link_button_url: str,
-                               link_button_name: str):
+                               link_button_name: str) -> None:
     if link_button_name:
         with utils.database.database as db:
             db.execute(f"INSERT INTO events VALUES ({chat_id}, {message_id}, "
@@ -56,8 +56,10 @@ async def insert_event_into_db(chat_id: str, message_id: str, event_name: str, v
                        f"'{event_name}', 0, 0, {vote_limit}, null, null, current_date)")
 
 
-async def delete_all_chat_info(chat_id):
+async def delete_all_chat_info(chat_id: int) -> None:
     with utils.database.database as db:
         db.execute(f"DELETE FROM channels WHERE channel_id = {chat_id}")
+        db.execute(f"DELETE FROM groups WHERE group_id = {chat_id}")
         db.execute(f"DELETE FROM user_votes WHERE chat_id = {chat_id}")
         db.execute(f"DELETE FROM events WHERE chat_id = {chat_id}")
+
