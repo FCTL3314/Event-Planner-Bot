@@ -3,7 +3,7 @@ import logging
 
 TOKEN = '5726995412:AAFHcxyUr8uTkJhm7ac-aYgqnmQhA3hoOB4'
 
-DB_ROUTE = r'utils/database/bot_data.dat'
+DB_ROUTE = r'utils/database/bot_data.sqlite3'
 
 LOGGING_LEVEL = logging.INFO
 LOGGING_FILE_NAME = "log"
