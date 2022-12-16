@@ -3,6 +3,7 @@ import sqlite3
 
 class SQLiteDatabase:
     def __init__(self, route):
+        self._route = route
         self.__conn = sqlite3.connect(database=route)
         self.__cur = self.__conn.cursor()
         self._connected = True
@@ -23,7 +24,7 @@ class SQLiteDatabase:
             self._connected = False
 
     def connect(self):
-        self.__conn = sqlite3.connect(database=r'utils/database/bot_data.dat')
+        self.__conn = sqlite3.connect(database=self._route)
         self.__cur = self.__conn.cursor()
         self._connected = True
 
