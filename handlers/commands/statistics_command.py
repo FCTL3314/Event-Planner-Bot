@@ -11,11 +11,25 @@ async def statistics_command(message: aiogram.types.Message, state: aiogram.disp
             events = db.execute(f'SELECT message_id, chat_id, event_name, creation_date '
                                 f'FROM events WHERE message_id IN '
                                 f'(SELECT message_id FROM (SELECT DISTINCT chat_id, message_id FROM events))')
-        result = ''
+        result = []
         channels_numbers_dict = dict()
         for i, data in enumerate(events, 1):
-            result += f'<b>{i}.</b> {data[2]}({data[3]})\n'
-            channels_numbers_dict[i] = data[0], data[1], data[2], data[3]
+            with utils.database.database as db:
+                channel_tittle = db.execute(f'SELECT channel_name FROM channels WHERE channel_id = {data[1]}')
+                group_tittle = db.execute(f'SELECT group_name FROM groups WHERE group_id = {data[1]}')
+            if channel_tittle:
+                if result and len(result[-1] + f'<b>{i}:\nНазвание мероприятия:</b> {data[2]}\n<b>Дата создания:</b> {data[3]}\n<b>Канал:</b> {channel_tittle[0][0]}\n') < 4096:
+                    result[-1] += f'<b>{i}:\nНазвание мероприятия:</b> {data[2]}\n<b>Дата создания:</b> {data[3]}\n<b>Канал:</b> {channel_tittle[0][0]}\n'
+                    channels_numbers_dict[i] = data[0], data[1], data[2], data[3]
+                else:
+                    result.append(f'<b>{i}:\nНазвание мероприятия:</b> {data[2]}\n<b>Дата создания:</b> {data[3]}\n<b>Канал:</b> {channel_tittle[0][0]}\n')
+                    channels_numbers_dict[i] = data[0], data[1], data[2], data[3]
+            else:
+                if result and len(result[-1] + f'<b>{i}:\nНазвание мероприятия:</b> {data[2]}\n<b>Дата создания:</b> {data[3]}\n<b>Группа:</b> {group_tittle[0][0]}\n') < 4096:
+                    result[-1] += f'<b>{i}:\nНазвание мероприятия:</b> {data[2]}\n<b>Дата создания:</b> {data[3]}\n<b>Группа:</b> {group_tittle[0][0]}\n'
+                    channels_numbers_dict[i] = data[0], data[1], data[2], data[3]
+                else:
+                    result.append(f'<b>{i}:\nНазвание мероприятия:</b> {data[2]}\n<b>Дата создания:</b> {data[3]}\n<b>Группа:</b> {group_tittle[0][0]}\n')
         if not result:
             await message.answer(text='*ℹ️Вы ещё не создали ни одного мероприятия.*\n', parse_mode='Markdown')
             await state.finish()
@@ -23,10 +37,10 @@ async def statistics_command(message: aiogram.types.Message, state: aiogram.disp
             async with state.proxy() as data:
                 data['channels_numbers_dict'] = channels_numbers_dict
             await states.statistic_command_states.CreateStatisticsStates.get_channels.set()
-            await message.answer(
-                text=f'<b> ℹ️Отправьте номер мероприятия по которому нужно отобразить статистику:</b>\n{result}'
-                     f'<b> Напишите /cancel что бы отменить выбор мероприятия.</b>',
-                parse_mode="HTML")
+            await message.answer(text=f'<b> ℹ️Отправьте номер мероприятия по которому нужно отобразить статистику:</b>', parse_mode='HTML')
+            for channels_message in result:
+                await message.answer(text=channels_message, parse_mode='HTML')
+            await message.answer(text=f'<b> Напишите /cancel что бы отменить выбор мероприятия.</b>', parse_mode="HTML")
 
 
 async def get_channel_to_show(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
