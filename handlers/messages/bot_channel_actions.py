@@ -16,8 +16,7 @@ async def bot_channel_actions(message: aiogram.types.Message):
                 for admin in BOT_ADMIN_IDS:
                     await bot.send_message(chat_id=admin, text=f'ℹ️Бот добавлен в канал: {channel_info["title"]}.')
             elif status == 'kicked' or status == 'left':
-                with utils.database.database as db:
-                    db.execute(f"DELETE FROM channels WHERE channel_id = {channel_info['id']}")
+                await utils.misc.delete_all_chat_info(chat_id=channel_info['id'])
                 for admin in BOT_ADMIN_IDS:
                     await bot.send_message(chat_id=admin, text=f'ℹ️Бот удалён из канала: {channel_info["title"]}.')
         elif channel_info['type'] == 'group':
@@ -27,8 +26,7 @@ async def bot_channel_actions(message: aiogram.types.Message):
                 for admin in BOT_ADMIN_IDS:
                     await bot.send_message(chat_id=admin, text=f'ℹ️Бот добавлен в группу: {channel_info["title"]}.')
             elif status == 'kicked' or status == 'left':
-                with utils.database.database as db:
-                    db.execute(f"DELETE FROM groups WHERE group_id = {channel_info['id']}")
+                await utils.misc.delete_all_chat_info(chat_id=channel_info['id'])
                 for admin in BOT_ADMIN_IDS:
                     await bot.send_message(chat_id=admin, text=f'ℹ️Бот удалён из группы: {channel_info["title"]}.')
 
