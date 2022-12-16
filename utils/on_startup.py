@@ -10,6 +10,7 @@ async def on_startup(dp: aiogram.Dispatcher):
         aiogram.types.BotCommand('create_event', 'Создать событие.'),
         aiogram.types.BotCommand('statistics', 'Посмотреть статистику событий.'),
         aiogram.types.BotCommand('cancel', 'Отменить создание события, опроса.'),
+        aiogram.types.BotCommand('clear', 'Удалить все мероприятия.'),
     ])
     with utils.database.database as db:
         db.create_tables()
