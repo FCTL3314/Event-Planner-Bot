@@ -54,3 +54,10 @@ async def insert_event_into_db(chat_id: str, message_id: str, event_name: str, v
         with utils.database.database as db:
             db.execute(f"INSERT INTO events VALUES ({chat_id}, {message_id}, "
                        f"'{event_name}', 0, 0, {vote_limit}, null, null, current_date)")
+
+
+async def delete_all_chat_info(chat_id):
+    with utils.database.database as db:
+        db.execute(f"DELETE FROM channels WHERE channel_id = {chat_id}")
+        db.execute(f"DELETE FROM user_votes WHERE chat_id = {chat_id}")
+        db.execute(f"DELETE FROM events WHERE chat_id = {chat_id}")
