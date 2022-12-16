@@ -22,7 +22,7 @@ async def create_event_command(message: aiogram.types.Message, state: aiogram.di
                 data['channels_ids_dict'] = channels_ids_dict
             await message.answer(text='ℹВы находитесь в режиме создания мероприятия. '
                                       'Для того что бы отменить создание, используйте команду /cancel.')
-            await message.answer(text='📩*Отправьте название мероприятия(не более 400 символов).*',
+            await message.answer(text='📩*Отправьте название мероприятия.*',
                                  parse_mode='Markdown')
             await states.create_event_states.CreateEventStates.get_event_name.set()
         else:
@@ -40,8 +40,8 @@ async def get_event_name(message: aiogram.types.Message, state: aiogram.dispatch
             reply_markup=keyboards.inline.without_photo.without_photo_keyboard(), parse_mode='Markdown')
         await states.create_event_states.CreateEventStates.next()
     else:
-        await message.answer(text='⚠️*Вы превысили лимит длинны названия. Отправьте название мероприятия снова.*',
-                             parse_mode='Markdown')
+        await message.answer(text='⚠️*Вы превысили лимит длинны названия в 400 символов. '
+                                  'Отправьте название мероприятия снова.*', parse_mode='Markdown')
 
 
 async def get_event_picture(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
