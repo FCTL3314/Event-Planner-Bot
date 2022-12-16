@@ -18,23 +18,23 @@ async def statistics_command(message: aiogram.types.Message, state: aiogram.disp
                 channel_tittle = db.execute(f'SELECT channel_name FROM channels WHERE channel_id = {data[1]}')
                 group_tittle = db.execute(f'SELECT group_name FROM groups WHERE group_id = {data[1]}')
             if channel_tittle:
-                if result and len(result[-1] + f'<b>{i}:\nНазвание мероприятия:</b> {data[2]}\n<b>Дата создания:</b> '
-                                               f'{data[3]}\n<b>Канал:</b> {channel_tittle[0][0]}\n') < 4096:
-                    result[-1] += f'<b>{i}:\nНазвание мероприятия:</b> {data[2]}\n<b>' \
-                                  f'Дата создания:</b> {data[3]}\n<b>Канал:</b> {channel_tittle[0][0]}\n'
+                if result and len(result[-1] + f'<b>{i}:\nНазвание мероприятия:\n</b> {data[2]}\n<b>Дата создания:\n'
+                                               f'</b> {data[3]}\n<b>Канал:\n</b> {channel_tittle[0][0]}\n') < 4096:
+                    result[-1] += f'● <b>{i}\nНазвание мероприятия:\n</b> {data[2]}\n<b>' \
+                                  f'Дата создания:\n</b> {data[3]}\n<b>Канал:\n</b> {channel_tittle[0][0]}\n'
                     channels_numbers_dict[i] = data[0], data[1], data[2], data[3]
                 else:
-                    result.append(f'<b>{i}:\nНазвание мероприятия:</b> {data[2]}\n<b>'
-                                  f'Дата создания:</b> {data[3]}\n<b>Канал:</b> {channel_tittle[0][0]}\n')
+                    result.append(f'● <b>{i}\nНазвание мероприятия:\n</b> {data[2]}\n<b>'
+                                  f'Дата создания:\n</b> {data[3]}\n<b>Канал:\n</b> {channel_tittle[0][0]}\n')
                     channels_numbers_dict[i] = data[0], data[1], data[2], data[3]
             else:
-                if result and len(result[-1] + f'<b>{i}:\nНазвание мероприятия:</b> {data[2]}\n<b>Дата создания:</b> '
-                                               f'{data[3]}\n<b>Группа:</b> {group_tittle[0][0]}\n') < 4096:
-                    result[-1] += f'<b>{i}:\nНазвание мероприятия:</b> {data[2]}\n<b>' \
-                                  f'Дата создания:</b> {data[3]}\n<b>Группа:</b> {group_tittle[0][0]}\n'
+                if result and len(result[-1] + f'<b>{i}:\nНазвание мероприятия:\n</b> {data[2]}\n<b>Дата создания:\n'
+                                               f'</b> {data[3]}\n<b>Группа:\n</b> {group_tittle[0][0]}\n') < 4096:
+                    result[-1] += f'● <b>{i}\nНазвание мероприятия:\n</b> {data[2]}\n<b>' \
+                                  f'Дата создания:\n</b> {data[3]}\n<b>Группа:\n</b> {group_tittle[0][0]}\n'
                     channels_numbers_dict[i] = data[0], data[1], data[2], data[3]
                 else:
-                    result.append(f'<b>{i}:\nНазвание мероприятия:</b> {data[2]}\n<b>Дата создания:</b> '
+                    result.append(f'● <b>{i}\nНазвание мероприятия:</b> {data[2]}\n<b>Дата создания:</b> '
                                   f'{data[3]}\n<b>Группа:</b> {group_tittle[0][0]}\n')
         if not result:
             await message.answer(text='*ℹ️У вас нет активных мероприятий.*\n', parse_mode='Markdown')
