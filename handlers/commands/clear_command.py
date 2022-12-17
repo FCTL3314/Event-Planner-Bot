@@ -8,8 +8,10 @@ from data.config import BOT_ADMIN_IDS
 
 async def clear_command_states(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
     if message.from_user.id in BOT_ADMIN_IDS:
-        code = [random.randint(0, 9) for _ in range(10)]
-        with state.proxy() as data:
+        code = ''
+        for i in range(10):
+            code += str(random.randint(0, 9))
+        async with state.proxy() as data:
             data['code'] = code
         await message.answer(text=f'❗️*Внимание! Данная команда удалит все мероприятия. '
                                   f'Для подтверждения введите следующее число:*\n{code}\n'
@@ -19,9 +21,9 @@ async def clear_command_states(message: aiogram.types.Message, state: aiogram.di
 
 
 async def clear_event_tables(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
-    with state.proxy() as data:
+    async with state.proxy() as data:
         code = data['code']
-    if message.text == str(code[0]):
+    if message.text == code:
         with utils.database.database as db:
             db.execute(f'DROP TABLE events')
             db.execute(f'DROP TABLE user_votes')
