@@ -1,18 +1,27 @@
+import random
 import aiogram
 import states
 import utils
 
+from data.config import BOT_ADMIN_IDS
 
-async def clear_command_states(message: aiogram.types.Message):
-    await message.answer(text=f'❗️*Внимание! Данная команда удалит все мероприятия. '
-                              f'Для подтверждения введите следующее число:*\n{message.from_user.id}\n'
-                              f'*Используйте команду /cancel для отмены.*',
-                         parse_mode='Markdown')
-    await states.clear_command_states.ClearCommandStates.are_you_sure.set()
+
+async def clear_command_states(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
+    if message.from_user.id in BOT_ADMIN_IDS:
+        code = [random.randint(0, 9) for _ in range(10)]
+        with state.proxy() as data:
+            data['code'] = code
+        await message.answer(text=f'❗️*Внимание! Данная команда удалит все мероприятия. '
+                                  f'Для подтверждения введите следующее число:*\n{code}\n'
+                                  f'*Используйте команду /cancel для отмены.*',
+                             parse_mode='Markdown')
+        await states.clear_command_states.ClearCommandStates.are_you_sure.set()
 
 
 async def clear_event_tables(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
-    if message.text == str(message.from_user.id):
+    with state.proxy() as data:
+        code = data['code']
+    if message.text == str(code[0]):
         with utils.database.database as db:
             db.execute(f'DROP TABLE events')
             db.execute(f'DROP TABLE user_votes')
