@@ -10,7 +10,8 @@ async def statistics_command(message: aiogram.types.Message, state: aiogram.disp
         with utils.database.database as db:
             events = db.execute(f'SELECT message_id, chat_id, event_name, creation_date '
                                 f'FROM events WHERE message_id IN '
-                                f'(SELECT message_id FROM (SELECT DISTINCT chat_id, message_id FROM events))')
+                                f'(SELECT message_id FROM (SELECT DISTINCT chat_id, message_id FROM events)) '
+                                f'ORDER BY creation_date DESC')
         result = []
         channels_numbers_dict = dict()
         for i, data in enumerate(events, 1):
@@ -34,8 +35,8 @@ async def statistics_command(message: aiogram.types.Message, state: aiogram.disp
                                   f'Дата создания:\n</b> {data[3]}\n<b>Группа:\n</b> {group_tittle[0][0]}\n'
                     channels_numbers_dict[i] = data[0], data[1], data[2], data[3]
                 else:
-                    result.append(f'● <b>{i}\nНазвание мероприятия:</b> {data[2]}\n<b>Дата создания:</b> '
-                                  f'{data[3]}\n<b>Группа:</b> {group_tittle[0][0]}\n')
+                    result.append(f'● <b>{i}\nНазвание мероприятия:\n</b> {data[2]}\n<b>Дата создания:\n</b> '
+                                  f'{data[3]}\n<b>Группа:\n</b> {group_tittle[0][0]}\n')
                     channels_numbers_dict[i] = data[0], data[1], data[2], data[3]
         if not result:
             await message.answer(text='*ℹ️У вас нет активных мероприятий.*\n', parse_mode='Markdown')
@@ -66,7 +67,8 @@ async def get_channel_to_show(message: aiogram.types.Message, state: aiogram.dis
             users_who_vote_think = db.execute(query=f"SELECT user_id, first_name, last_name FROM user_votes WHERE "
                                                     f"(message_id = {event_data[0]}) and (chat_id = {event_data[1]}) "
                                                     f"and (vote = 'think')")
-        await message.answer(text=f"*ℹ️Мероприятие:* {event_data[2]} | {event_data[3]}", parse_mode='Markdown')
+        await message.answer(text=f"ℹ️<b>Мероприятие:\n</b> {event_data[2]}\n<b>Дата создания\n</b>: {event_data[3]}",
+                             parse_mode='HTML')
 
         users_fire_votes_text_divided_by_4096_symbols = await utils.misc.create_users_vote_text(
             users=users_who_vote_fire)
