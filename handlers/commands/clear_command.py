@@ -28,7 +28,7 @@ async def clear_event_tables(message: aiogram.types.Message, state: aiogram.disp
             db.execute(f'DROP TABLE events')
             db.execute(f'DROP TABLE user_votes')
             db.create_tables()
-        await message.answer(text='✅ Все мероприятия удалены.', parse_mode='Markdown')
+        await message.answer(text='✅ *Все мероприятия удалены.*', parse_mode='Markdown')
         await state.finish()
     else:
         await message.answer(text='⚠️*Введённое вами число неверно. '
