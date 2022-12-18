@@ -10,8 +10,8 @@ async def without_picture(callback: aiogram.types.CallbackQuery, state: aiogram.
         data['link_button_url'] = None
         channels_text = data['channels_text']
     await bot.send_message(chat_id=callback.message.chat.id,
-                           text=f'❕*Отправьте номер канала, либо укажите через пробел номера каналов, '
-                                f'в которые необходимо отправить событие:*\n{channels_text}', parse_mode='Markdown')
+                           text=f'❕<b>Отправьте номер канала, либо укажите через пробел номера каналов, '
+                                f'в которые необходимо отправить событие:</b>\n{channels_text}', parse_mode='HTML')
     await states.create_event_states.CreateEventStates.get_channels_to_send.set()
 
 

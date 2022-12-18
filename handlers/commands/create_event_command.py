@@ -111,9 +111,9 @@ async def get_link_button_url(message: aiogram.types.Message, state: aiogram.dis
         async with state.proxy() as data:
             data['link_button_url'] = text
             channels_text = data['channels_text']
-        await message.answer(text=f'📩*Отправьте номер канала, либо укажите через пробел номера каналов, '
-                                  f'в которые необходимо отправить мероприятие:*\n{channels_text}',
-                             parse_mode='Markdown')
+        await message.answer(text=f'📩<b>Отправьте номер канала, либо укажите через пробел номера каналов, '
+                                  f'в которые необходимо отправить мероприятие:</b>\n{channels_text}',
+                             parse_mode='HTML')
         await states.create_event_states.CreateEventStates.next()
     else:
         await message.answer(text='⚠️*Ссылка некорректна. Отправьте ссылку заново.*', parse_mode='Markdown')
