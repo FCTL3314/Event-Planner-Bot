@@ -31,7 +31,7 @@ async def create_event_command(message: aiogram.types.Message, state: aiogram.di
 
 
 async def get_event_name(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
-    event_name = message.text.replace("_", "\\_").replace("*", "\\*").replace("[", "\\[").replace("`", "\\`")
+    event_name = message.text
     if len(event_name) <= 400:
         async with state.proxy() as data:
             data['event_name'] = event_name
@@ -54,7 +54,7 @@ async def get_event_picture(message: aiogram.types.Message, state: aiogram.dispa
 
 
 async def get_event_description(message: aiogram.types.Message, state: aiogram.dispatcher.FSMContext):
-    event_description = message.text.replace("_", "\\_").replace("*", "\\*").replace("[", "\\[").replace("`", "\\`")
+    event_description = message.text
     await message.answer(text=f'✅Описание мероприятия получено.\nКол-во символов - {len(event_description)}.',
                          parse_mode='Markdown')
     async with state.proxy() as data:
@@ -101,7 +101,7 @@ async def get_link_button_name(message: aiogram.types.Message, state: aiogram.di
     link_button_name = message.text
     async with state.proxy() as data:
         data['link_button_name'] = link_button_name
-    await message.answer(text=f'📩*Отправьте ссылку для кнопки \"{link_button_name}\".*', parse_mode='Markdown')
+    await message.answer(text=f'📩<b>Отправьте ссылку для кнопки \"{link_button_name}\".</b>', parse_mode='HTML')
     await states.create_event_states.CreateEventStates.next()
 
 
@@ -159,8 +159,7 @@ async def send_event(callback: aiogram.types.CallbackQuery, state: aiogram.dispa
                                                      fire_button_count=0,
                                                      think_button_count=0,
                                                      link_button_name=link_button_name,
-                                                     link_button_url=link_button_url),
-                                                 parse_mode='HTML')
+                                                     link_button_url=link_button_url), parse_mode='HTML')
             first_message_id = first_message.message_id
             first_message_chat_id = first_message.chat.id
             await utils.misc.insert_event_into_db(chat_id=first_message_chat_id, message_id=first_message_id,
@@ -173,8 +172,7 @@ async def send_event(callback: aiogram.types.CallbackQuery, state: aiogram.dispa
                                                         fire_button_count=0,
                                                         think_button_count=0,
                                                         link_button_name=link_button_name,
-                                                        link_button_url=link_button_url),
-                                                    parse_mode='HTML')
+                                                        link_button_url=link_button_url), parse_mode='HTML')
             second_message_id = second_message.message_id
             second_message_chat_id = second_message.chat.id
             await utils.misc.insert_event_into_db(chat_id=second_message_chat_id, message_id=second_message_id,
