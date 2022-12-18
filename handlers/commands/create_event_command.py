@@ -154,13 +154,13 @@ async def send_event(callback: aiogram.types.CallbackQuery, state: aiogram.dispa
     for number in channels_indexes:
         if event_picture_id:
             first_message = await bot.send_photo(chat_id=channels_ids_dict[number], photo=event_picture_id,
-                                                 caption=f"*{event_name}*\n{event_description}",
+                                                 caption=f"<b>{event_name}</b>\n{event_description}",
                                                  reply_markup=keyboards.inline.vote.vote_keyboard(
                                                      fire_button_count=0,
                                                      think_button_count=0,
                                                      link_button_name=link_button_name,
                                                      link_button_url=link_button_url),
-                                                 parse_mode='Markdown')
+                                                 parse_mode='HTML')
             first_message_id = first_message.message_id
             first_message_chat_id = first_message.chat.id
             await utils.misc.insert_event_into_db(chat_id=first_message_chat_id, message_id=first_message_id,
@@ -168,19 +168,20 @@ async def send_event(callback: aiogram.types.CallbackQuery, state: aiogram.dispa
                                                   link_button_url=link_button_url, link_button_name=link_button_name)
         else:
             second_message = await bot.send_message(chat_id=channels_ids_dict[number],
-                                                    text=f"*{event_name}*\n{event_description}",
+                                                    text=f"<b>{event_name}</b>\n{event_description}",
                                                     reply_markup=keyboards.inline.vote.vote_keyboard(
                                                         fire_button_count=0,
                                                         think_button_count=0,
                                                         link_button_name=link_button_name,
                                                         link_button_url=link_button_url),
-                                                    parse_mode='Markdown')
+                                                    parse_mode='HTML')
             second_message_id = second_message.message_id
             second_message_chat_id = second_message.chat.id
             await utils.misc.insert_event_into_db(chat_id=second_message_chat_id, message_id=second_message_id,
                                                   event_name=event_name, vote_limit=vote_limit,
                                                   link_button_url=link_button_url, link_button_name=link_button_name)
-    await bot.send_message(chat_id=callback.from_user.id, text='✅Мероприятие успешно отправлено!')
+    await bot.send_message(chat_id=callback.from_user.id, text='✅<b>Мероприятие успешно отправлено!</b>',
+                           parse_mode='HTML')
     await state.finish()
 
 
